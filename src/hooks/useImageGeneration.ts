@@ -1,274 +1,268 @@
 import { useMutation } from '@tanstack/react-query';
-import { geminiService, GenerationRequest, EditRequest } from '../services/geminiService';
+import {
+  GEMINI_IMAGE_MODEL,
+  type EditRequest,
+  type GenerationRequest,
+} from '../services/geminiService';
+import { getCurrentAIService } from '../services/aiServiceFactory';
 import { useAppStore } from '../store/useAppStore';
 import { generateId } from '../utils/imageUtils';
-import { Generation, Edit, Asset } from '../types';
+import type { Asset, Edit, Generation, Project } from '../types';
+
+const DEFAULT_IMAGE_SIZE = 1024;
+
+const createAsset = (base64: string, type: Asset['type']): Asset => ({
+  id: generateId(),
+  type,
+  url: `data:image/png;base64,${base64}`,
+  mime: 'image/png',
+  width: DEFAULT_IMAGE_SIZE,
+  height: DEFAULT_IMAGE_SIZE,
+  checksum: base64.slice(0, 32),
+});
+
+const extractBase64 = (value: string) => (value.includes('base64,') ? value.split('base64,')[1] : value);
+
+const createProject = (project: Pick<Project, 'generations' | 'edits'>): Project => ({
+  id: generateId(),
+  title: 'Untitled Project',
+  generations: project.generations,
+  edits: project.edits,
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+});
+
+const loadImage = (source: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('图片加载失败'));
+    image.src = source;
+  });
 
 export const useImageGeneration = () => {
-  const { addGeneration, setIsGenerating, setCanvasImage, setCurrentProject, currentProject } = useAppStore();
-
   const generateMutation = useMutation({
     mutationFn: async (request: GenerationRequest) => {
-      const images = await geminiService.generateImage(request);
-      return images;
+      const service = getCurrentAIService();
+      return service.generateImage(request);
     },
     onMutate: () => {
-      setIsGenerating(true);
+      useAppStore.getState().setIsGenerating(true);
     },
     onSuccess: (images, request) => {
-      if (images.length > 0) {
-        const outputAssets: Asset[] = images.map((base64, index) => ({
-          id: generateId(),
-          type: 'output',
-          url: `data:image/png;base64,${base64}`,
-          mime: 'image/png',
-          width: 1024, // Default Gemini output size
-          height: 1024,
-          checksum: base64.slice(0, 32) // Simple checksum
-        }));
+      const state = useAppStore.getState();
 
-        const generation: Generation = {
-          id: generateId(),
-          prompt: request.prompt,
-          parameters: {
-            aspectRatio: '1:1',
-            seed: request.seed,
-            temperature: request.temperature
-          },
-          sourceAssets: request.referenceImage ? [{
-            id: generateId(),
-            type: 'original',
-            url: `data:image/png;base64,${request.referenceImages[0]}`,
-            mime: 'image/png',
-            width: 1024,
-            height: 1024,
-            checksum: request.referenceImages[0].slice(0, 32)
-          }] : request.referenceImages ? request.referenceImages.map((img, index) => ({
-            id: generateId(),
-            type: 'original' as const,
-            url: `data:image/png;base64,${img}`,
-            mime: 'image/png',
-            width: 1024,
-            height: 1024,
-            checksum: img.slice(0, 32)
-          })) : [],
-          outputAssets,
-          modelVersion: 'gemini-2.5-flash-image-preview',
-          timestamp: Date.now()
-        };
+      if (images.length === 0) {
+        state.setIsGenerating(false);
+        return;
+      }
 
-        addGeneration(generation);
-        setCanvasImage(outputAssets[0].url);
-        
-        // Create project if none exists
-        if (!currentProject) {
-          const newProject = {
-            id: generateId(),
-            title: 'Untitled Project',
+      const outputAssets = images.map((base64) => createAsset(base64, 'output'));
+      const sourceAssets = (request.referenceImages ?? []).map((base64) => createAsset(base64, 'original'));
+
+      const generation: Generation = {
+        id: generateId(),
+        prompt: request.prompt,
+        parameters: {
+          seed: request.seed,
+          temperature: request.temperature,
+        },
+        sourceAssets,
+        outputAssets,
+        modelVersion: `${GEMINI_IMAGE_MODEL} (${useAppStore.getState().aiProvider})`,
+        timestamp: Date.now(),
+      };
+
+      if (state.currentProject) {
+        state.addGeneration(generation);
+      } else {
+        state.setCurrentProject(
+          createProject({
             generations: [generation],
             edits: [],
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-          };
-          setCurrentProject(newProject);
-        }
+          })
+        );
       }
-      setIsGenerating(false);
+
+      state.setCanvasImage(outputAssets[0].url);
+      state.selectGeneration(generation.id);
+      state.selectEdit(null);
+      state.setIsGenerating(false);
     },
     onError: (error) => {
-      console.error('Generation failed:', error);
-      setIsGenerating(false);
-    }
+      console.error('生成图片失败:', error);
+      useAppStore.getState().setIsGenerating(false);
+    },
   });
 
   return {
     generate: generateMutation.mutate,
     isGenerating: generateMutation.isPending,
-    error: generateMutation.error
+    error: generateMutation.error,
   };
 };
 
 export const useImageEditing = () => {
-  const { 
-    addEdit, 
-    setIsGenerating, 
-    setCanvasImage, 
-    canvasImage, 
-    editReferenceImages,
-    brushStrokes,
-    selectedGenerationId,
-    currentProject,
-    seed,
-    temperature 
-  } = useAppStore();
-
   const editMutation = useMutation({
     mutationFn: async (instruction: string) => {
-      // Always use canvas image as primary target if available, otherwise use first uploaded image
+      const {
+        canvasImage,
+        uploadedImages,
+        editReferenceImages,
+        brushStrokes,
+        seed,
+        temperature,
+      } = useAppStore.getState();
+
       const sourceImage = canvasImage || uploadedImages[0];
-      if (!sourceImage) throw new Error('No image to edit');
-      
-      // Convert canvas image to base64
-      const base64Image = sourceImage.includes('base64,') 
-        ? sourceImage.split('base64,')[1] 
-        : sourceImage;
-      
-      // Get reference images for style guidance
-      let referenceImages = editReferenceImages
-        .filter(img => img.includes('base64,'))
-        .map(img => img.split('base64,')[1]);
-      
+      if (!sourceImage) {
+        throw new Error('No image to edit');
+      }
+
+      const base64Image = extractBase64(sourceImage);
+      let referenceImages = editReferenceImages.map(extractBase64);
       let maskImage: string | undefined;
       let maskedReferenceImage: string | undefined;
-      
-      // Create mask from brush strokes if any exist
+
       if (brushStrokes.length > 0) {
-        // Create a temporary image to get actual dimensions
-        const tempImg = new Image();
-        tempImg.src = sourceImage;
-        await new Promise<void>((resolve) => {
-          tempImg.onload = () => resolve();
-        });
-        
-        // Create mask canvas with exact image dimensions
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d')!;
-        canvas.width = tempImg.width;
-        canvas.height = tempImg.height;
-        
-        // Fill with black (unmasked areas)
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw white strokes (masked areas)
-        ctx.strokeStyle = 'white';
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        
-        brushStrokes.forEach(stroke => {
-          if (stroke.points.length >= 4) {
-            ctx.lineWidth = stroke.brushSize;
-            ctx.beginPath();
-            ctx.moveTo(stroke.points[0], stroke.points[1]);
-            
-            for (let i = 2; i < stroke.points.length; i += 2) {
-              ctx.lineTo(stroke.points[i], stroke.points[i + 1]);
-            }
-            ctx.stroke();
+        const tempImage = await loadImage(sourceImage);
+
+        const maskCanvas = document.createElement('canvas');
+        const maskContext = maskCanvas.getContext('2d');
+        if (!maskContext) {
+          throw new Error('无法创建蒙版画布');
+        }
+
+        maskCanvas.width = tempImage.width;
+        maskCanvas.height = tempImage.height;
+        maskContext.fillStyle = 'black';
+        maskContext.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+        maskContext.strokeStyle = 'white';
+        maskContext.lineCap = 'round';
+        maskContext.lineJoin = 'round';
+
+        brushStrokes.forEach((stroke) => {
+          if (stroke.points.length < 4) {
+            return;
           }
-        });
-        
-        // Convert mask to base64
-        const maskDataUrl = canvas.toDataURL('image/png');
-        maskImage = maskDataUrl.split('base64,')[1];
-        
-        // Create masked reference image (original image with mask overlay)
-        const maskedCanvas = document.createElement('canvas');
-        const maskedCtx = maskedCanvas.getContext('2d')!;
-        maskedCanvas.width = tempImg.width;
-        maskedCanvas.height = tempImg.height;
-        
-        // Draw original image
-        maskedCtx.drawImage(tempImg, 0, 0);
-        
-        // Draw mask overlay with transparency
-        maskedCtx.globalCompositeOperation = 'source-over';
-        maskedCtx.globalAlpha = 0.4;
-       maskedCtx.fillStyle = '#A855F7';
-        
-        brushStrokes.forEach(stroke => {
-          if (stroke.points.length >= 4) {
-            maskedCtx.lineWidth = stroke.brushSize;
-           maskedCtx.strokeStyle = '#A855F7';
-            maskedCtx.lineCap = 'round';
-            maskedCtx.lineJoin = 'round';
-            maskedCtx.beginPath();
-            maskedCtx.moveTo(stroke.points[0], stroke.points[1]);
-            
-            for (let i = 2; i < stroke.points.length; i += 2) {
-              maskedCtx.lineTo(stroke.points[i], stroke.points[i + 1]);
-            }
-            maskedCtx.stroke();
+
+          maskContext.lineWidth = stroke.brushSize;
+          maskContext.beginPath();
+          maskContext.moveTo(stroke.points[0], stroke.points[1]);
+
+          for (let i = 2; i < stroke.points.length; i += 2) {
+            maskContext.lineTo(stroke.points[i], stroke.points[i + 1]);
           }
+
+          maskContext.stroke();
         });
-        
-        maskedCtx.globalAlpha = 1;
-        maskedCtx.globalCompositeOperation = 'source-over';
-        
-        const maskedDataUrl = maskedCanvas.toDataURL('image/png');
-        maskedReferenceImage = maskedDataUrl.split('base64,')[1];
-        
-        // Add the masked image as a reference for the model
+
+        maskImage = maskCanvas.toDataURL('image/png').split('base64,')[1];
+
+        const previewCanvas = document.createElement('canvas');
+        const previewContext = previewCanvas.getContext('2d');
+        if (!previewContext) {
+          throw new Error('无法创建预览画布');
+        }
+
+        previewCanvas.width = tempImage.width;
+        previewCanvas.height = tempImage.height;
+        previewContext.drawImage(tempImage, 0, 0);
+        previewContext.globalAlpha = 0.4;
+        previewContext.strokeStyle = '#A855F7';
+        previewContext.lineCap = 'round';
+        previewContext.lineJoin = 'round';
+
+        brushStrokes.forEach((stroke) => {
+          if (stroke.points.length < 4) {
+            return;
+          }
+
+          previewContext.lineWidth = stroke.brushSize;
+          previewContext.beginPath();
+          previewContext.moveTo(stroke.points[0], stroke.points[1]);
+
+          for (let i = 2; i < stroke.points.length; i += 2) {
+            previewContext.lineTo(stroke.points[i], stroke.points[i + 1]);
+          }
+
+          previewContext.stroke();
+        });
+
+        previewContext.globalAlpha = 1;
+        maskedReferenceImage = previewCanvas.toDataURL('image/png').split('base64,')[1];
         referenceImages = [maskedReferenceImage, ...referenceImages];
       }
-      
+
       const request: EditRequest = {
         instruction,
         originalImage: base64Image,
         referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
         maskImage,
         temperature,
-        seed
+        seed: seed ?? undefined,
       };
-      
-      const images = await geminiService.editImage(request);
+
+      const images = await getCurrentAIService().editImage(request);
       return { images, maskedReferenceImage };
     },
     onMutate: () => {
-      setIsGenerating(true);
+      useAppStore.getState().setIsGenerating(true);
     },
     onSuccess: ({ images, maskedReferenceImage }, instruction) => {
-      if (images.length > 0) {
-        const outputAssets: Asset[] = images.map((base64, index) => ({
-          id: generateId(),
-          type: 'output',
-          url: `data:image/png;base64,${base64}`,
-          mime: 'image/png',
-          width: 1024,
-          height: 1024,
-          checksum: base64.slice(0, 32)
-        }));
+      const state = useAppStore.getState();
 
-        // Create mask reference asset if we have one
-        const maskReferenceAsset: Asset | undefined = maskedReferenceImage ? {
-          id: generateId(),
-          type: 'mask',
-          url: `data:image/png;base64,${maskedReferenceImage}`,
-          mime: 'image/png',
-          width: 1024,
-          height: 1024,
-          checksum: maskedReferenceImage.slice(0, 32)
-        } : undefined;
-
-        const edit: Edit = {
-          id: generateId(),
-          parentGenerationId: selectedGenerationId || (currentProject?.generations[currentProject.generations.length - 1]?.id || ''),
-          maskAssetId: brushStrokes.length > 0 ? generateId() : undefined,
-          maskReferenceAsset,
-          instruction,
-          outputAssets,
-          timestamp: Date.now()
-        };
-
-        addEdit(edit);
-        
-        // Automatically load the edited image in the canvas
-        const { selectEdit, selectGeneration } = useAppStore.getState();
-        setCanvasImage(outputAssets[0].url);
-        selectEdit(edit.id);
-        selectGeneration(null);
+      if (images.length === 0) {
+        state.setIsGenerating(false);
+        return;
       }
-      setIsGenerating(false);
+
+      const outputAssets = images.map((base64) => createAsset(base64, 'output'));
+      const maskReferenceAsset = maskedReferenceImage
+        ? createAsset(maskedReferenceImage, 'mask')
+        : undefined;
+
+      const currentProject = state.currentProject;
+      const lastGeneration =
+        currentProject && currentProject.generations.length > 0
+          ? currentProject.generations[currentProject.generations.length - 1]
+          : undefined;
+
+      const edit: Edit = {
+        id: generateId(),
+        parentGenerationId: state.selectedGenerationId || lastGeneration?.id || '',
+        maskAssetId: maskReferenceAsset?.id,
+        maskReferenceAsset,
+        instruction,
+        outputAssets,
+        timestamp: Date.now(),
+      };
+
+      if (currentProject) {
+        state.addEdit(edit);
+      } else {
+        state.setCurrentProject(
+          createProject({
+            generations: [],
+            edits: [edit],
+          })
+        );
+      }
+
+      state.setCanvasImage(outputAssets[0].url);
+      state.selectEdit(edit.id);
+      state.selectGeneration(null);
+      state.setIsGenerating(false);
     },
     onError: (error) => {
-      console.error('Edit failed:', error);
-      setIsGenerating(false);
-    }
+      console.error('编辑图片失败:', error);
+      useAppStore.getState().setIsGenerating(false);
+    },
   });
 
   return {
     edit: editMutation.mutate,
     isEditing: editMutation.isPending,
-    error: editMutation.error
+    error: editMutation.error,
   };
 };

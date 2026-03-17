@@ -65,3 +65,17 @@ export interface PromptHint {
   text: string;
   example: string;
 }
+
+// AI 渠道类型
+export type AIProvider = 'gemini' | 'ai-studio';
+
+// AI 渠道配置
+export interface ProviderConfig {
+  gemini: {
+    apiKey: string;
+  };
+  'ai-studio': {
+    apiKey: string;
+    endpoint: string;
+  };
+}

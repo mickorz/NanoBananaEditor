@@ -152,7 +152,7 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ### Model Configuration
-- **Model**: `gemini-2.5-flash-image-preview`
+- **Model**: `gemini-2.5-flash-image`
 - **Output Format**: 1024×1024 PNG with SynthID watermarks
 - **Input Formats**: PNG, JPEG, WebP
 - **Temperature Range**: 0-1 (0 = deterministic, 1 = creative)

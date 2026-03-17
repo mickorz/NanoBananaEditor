@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { Project, Generation, Edit, SegmentationMask, BrushStroke } from '../types';
+import { Project, Generation, Edit, SegmentationMask, BrushStroke, AIProvider } from '../types';
 
 interface AppState {
   // Current project
@@ -19,6 +19,7 @@ interface AppState {
   brushStrokes: BrushStroke[];
   brushSize: number;
   showMasks: boolean;
+  selectedMask: SegmentationMask | null;
   
   // Generation state
   isGenerating: boolean;
@@ -36,7 +37,10 @@ interface AppState {
   
   // UI state
   selectedTool: 'generate' | 'edit' | 'mask';
-  
+
+  // AI Provider
+  aiProvider: AIProvider;
+
   // Actions
   setCurrentProject: (project: Project | null) => void;
   setCanvasImage: (url: string | null) => void;
@@ -55,6 +59,7 @@ interface AppState {
   clearBrushStrokes: () => void;
   setBrushSize: (size: number) => void;
   setShowMasks: (show: boolean) => void;
+  setSelectedMask: (mask: SegmentationMask | null) => void;
   
   setIsGenerating: (generating: boolean) => void;
   setCurrentPrompt: (prompt: string) => void;
@@ -70,11 +75,14 @@ interface AppState {
   setShowPromptPanel: (show: boolean) => void;
   
   setSelectedTool: (tool: 'generate' | 'edit' | 'mask') => void;
+
+  // AI Provider actions
+  setAIProvider: (provider: AIProvider) => void;
 }
 
 export const useAppStore = create<AppState>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       currentProject: null,
       canvasImage: null,
@@ -87,6 +95,7 @@ export const useAppStore = create<AppState>()(
       brushStrokes: [],
       brushSize: 20,
       showMasks: true,
+      selectedMask: null,
       
       isGenerating: false,
       currentPrompt: '',
@@ -100,7 +109,10 @@ export const useAppStore = create<AppState>()(
       showPromptPanel: true,
       
       selectedTool: 'generate',
-      
+
+      // AI Provider 默认使用 ai-studio
+      aiProvider: 'ai-studio',
+
       // Actions
       setCurrentProject: (project) => set({ currentProject: project }),
       setCanvasImage: (url) => set({ canvasImage: url }),
@@ -129,6 +141,7 @@ export const useAppStore = create<AppState>()(
       clearBrushStrokes: () => set({ brushStrokes: [] }),
       setBrushSize: (size) => set({ brushSize: size }),
       setShowMasks: (show) => set({ showMasks: show }),
+      setSelectedMask: (mask) => set({ selectedMask: mask }),
       
       setIsGenerating: (generating) => set({ isGenerating: generating }),
       setCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
@@ -158,6 +171,8 @@ export const useAppStore = create<AppState>()(
       setShowPromptPanel: (show) => set({ showPromptPanel: show }),
       
       setSelectedTool: (tool) => set({ selectedTool: tool }),
+
+      setAIProvider: (provider) => set({ aiProvider: provider }),
     }),
     { name: 'nano-banana-store' }
   )
