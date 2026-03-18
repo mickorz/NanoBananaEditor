@@ -275,6 +275,51 @@
       "extractedFrames": "Extracted Frames",
       "error": "Failed to extract frames",
       "download": "Download"
+    },
+    "splitter": {
+      "cols": "Cols",
+      "rows": "Rows",
+      "frames": "Frames",
+      "reset": "Reset",
+      "extract": "Extract Frames",
+      "extracted": "Extracted Frames",
+      "imageSize": "Image Size"
+    },
+    "sandbox": {
+      "title": "Sprite Sandbox",
+      "description": "Test your sprite in a game environment",
+      "play": "Play",
+      "pause": "Pause",
+      "paused": "Paused",
+      "pressP": "Press P to play",
+      "reset": "Reset",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen",
+      "wasdHint": "Move",
+      "shiftHint": "Run",
+      "attackHint": "Attack",
+      "noFrames": "No sprite frames loaded",
+      "uploadFirst": "Generate or upload a sprite first"
+    },
+    "background": {
+      "style": "Background Style",
+      "timeOfDay": "Time of Day",
+      "generateAll": "Generate 3-Layer Background",
+      "generating": "Generating Layer",
+      "preview": "Preview",
+      "separate": "Separate",
+      "combined": "Combined",
+      "speed": "Speed",
+      "notGenerated": "Not generated"
+    },
+    "panel": {
+      "textMode": "Text",
+      "imageMode": "Image",
+      "uploadReference": "Upload Reference Image",
+      "clickToUpload": "Click to upload",
+      "supportedFormats": "PNG, JPG, WEBP",
+      "additionalNotes": "Additional Notes (optional)",
+      "additionalNotesPlaceholder": "e.g., make it 16-bit style, add blue cape..."
     }
   }
 }

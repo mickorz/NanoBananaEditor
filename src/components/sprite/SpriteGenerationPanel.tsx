@@ -10,15 +10,16 @@
  *   └─> 结果预览
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2, RefreshCw, Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { Wand2, RefreshCw, Download, ChevronDown, ChevronUp, Type, Image, Upload, X, Gamepad2, ArrowLeft } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 import { WorkflowStepper, type WorkflowStep } from './WorkflowStepper';
 import { SpritePreview } from './SpritePreview';
 import { AnimationPlayer } from './AnimationPlayer';
 import { FrameExtractor } from './FrameExtractor';
+import { SpriteSandbox, type AnimationFrames } from './SpriteSandbox';
 import {
   ANIMATION_TYPES,
   DIRECTIONS,
@@ -27,6 +28,33 @@ import {
   type SpriteDirection,
 } from '../../constants/spritePrompts';
 import { extractFrames, canvasToBase64, downloadSpriteSheet } from '../../utils/spriteUtils';
+
+// Blob 转 Base64 辅助函数
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      if (result.includes('base64,')) {
+        resolve(result.split('base64,')[1]);
+      } else {
+        resolve(result);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+// 文件转 Base64 URL
+const fileToDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 interface SpriteGenerationPanelProps {
   onGenerate: (config: SpriteGenerationConfig) => void;
@@ -41,6 +69,7 @@ export interface SpriteGenerationConfig {
   direction: SpriteDirection;
   stylePreset: string;
   frameCount: number;
+  referenceImageUrl?: string | null;
 }
 
 // 工作流步骤定义
@@ -90,7 +119,9 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
 
   // 状态
   const [currentStep, setCurrentStep] = useState(0);
+  const [inputMode, setInputMode] = useState<'text' | 'image'>('text');
   const [characterDescription, setCharacterDescription] = useState('');
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null);
   const [animationType, setAnimationType] = useState<SpriteAnimationType>('idle');
   const [direction, setDirection] = useState<SpriteDirection>('front');
   const [stylePreset, setStylePreset] = useState(SPRITE_STYLE_PRESETS[1].id); // 默认 32x32
@@ -99,6 +130,8 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
   const [frameHeight, setFrameHeight] = useState(64);
   const [frameCount, setFrameCount] = useState(4);
   const [extractedFrames, setExtractedFrames] = useState<string[]>([]);
+  const [showSandbox, setShowSandbox] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 获取当前风格预设
   const currentPreset = SPRITE_STYLE_PRESETS.find((p) => p.id === stylePreset);
@@ -128,11 +161,12 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
       direction,
       stylePreset: currentPreset?.promptSuffix || '',
       frameCount: defaultFrameCount,
+      referenceImageUrl,
     };
 
     setCurrentStep(2); // 移动到生成步骤
     onGenerate(config);
-  }, [characterDescription, animationType, direction, currentPreset, defaultFrameCount, onGenerate]);
+  }, [characterDescription, animationType, direction, currentPreset, defaultFrameCount, referenceImageUrl, onGenerate]);
 
   // 生成完成后处理帧提取
   const handleFramesExtracted = useCallback((frames: string[]) => {
@@ -157,6 +191,7 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
     setCurrentStep(0);
     setCharacterDescription('');
     setExtractedFrames([]);
+    setShowSandbox(false);
   }, []);
 
   return (
@@ -175,21 +210,131 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
         {/* 步骤 1: 角色描述 */}
         {currentStep === 0 && (
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-300">
-              {t('sprite.panel.characterDescription', 'Character Description')}
-            </h3>
-            <textarea
-              value={characterDescription}
-              onChange={(e) => setCharacterDescription(e.target.value)}
-              placeholder={t(
-                'sprite.panel.characterPlaceholder',
-                'Describe your character: appearance, clothing, colors, etc.'
-              )}
-              className="w-full h-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 resize-none focus:border-yellow-500 focus:outline-none"
-            />
+            {/* 模式切换器 */}
+            <div className="flex rounded-lg bg-gray-800 p-1">
+              <button
+                onClick={() => setInputMode('text')}
+                className={cn(
+                  'flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm transition-colors',
+                  inputMode === 'text'
+                    ? 'bg-yellow-500 text-gray-900'
+                    : 'text-gray-400 hover:text-gray-300'
+                )}
+              >
+                <Type className="w-4 h-4 mr-2" />
+                {t('sprite.panel.textMode', 'Text')}
+              </button>
+              <button
+                onClick={() => setInputMode('image')}
+                className={cn(
+                  'flex-1 flex items-center justify-center px-3 py-2 rounded-md text-sm transition-colors',
+                  inputMode === 'image'
+                    ? 'bg-yellow-500 text-gray-900'
+                    : 'text-gray-400 hover:text-gray-300'
+                )}
+              >
+                <Image className="w-4 h-4 mr-2" />
+                {t('sprite.panel.imageMode', 'Image')}
+              </button>
+            </div>
+
+            {inputMode === 'text' ? (
+              /* 文字输入模式 */
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-gray-300">
+                  {t('sprite.panel.characterDescription', 'Character Description')}
+                </h3>
+                <textarea
+                  value={characterDescription}
+                  onChange={(e) => setCharacterDescription(e.target.value)}
+                  placeholder={t(
+                    'sprite.panel.characterPlaceholder',
+                    'Describe your character: appearance, clothing, colors, etc.'
+                  )}
+                  className="w-full h-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 resize-none focus:border-yellow-500 focus:outline-none"
+                />
+              </div>
+            ) : (
+              /* 图片输入模式 */
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-gray-300">
+                  {t('sprite.panel.uploadReference', 'Upload Reference Image')}
+                </h3>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    try {
+                      const base64 = await blobToBase64(file);
+                      const dataUrl = `data:${file.type};base64,${base64}`;
+                      setReferenceImageUrl(dataUrl);
+                    } catch (error) {
+                      console.error('Failed to load image:', error);
+                    }
+                    e.target.value = '';
+                  }}
+                  className="hidden"
+                />
+
+                {referenceImageUrl ? (
+                  <div className="relative">
+                    <img
+                      src={referenceImageUrl}
+                      alt="Reference"
+                      className="w-full h-48 object-contain rounded-lg border border-gray-700 bg-gray-900"
+                      style={{
+                        background:
+                          'repeating-conic-gradient(#80808020 0% 25%, transparent 0% 50%) 50% / 16px 16px',
+                      }}
+                    />
+                    <button
+                      onClick={() => setReferenceImageUrl(null)}
+                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-48 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-yellow-500/50 hover:text-gray-300 transition-colors"
+                  >
+                    <Upload className="w-8 h-8 mb-2" />
+                    <span className="text-sm">
+                      {t('sprite.panel.clickToUpload', 'Click to upload')}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      {t('sprite.panel.supportedFormats', 'PNG, JPG, WEBP')}
+                    </span>
+                  </button>
+                )}
+
+                {/* 可选的补充描述 */}
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-400">
+                    {t('sprite.panel.additionalNotes', 'Additional Notes (optional)')}
+                  </label>
+                  <textarea
+                    value={characterDescription}
+                    onChange={(e) => setCharacterDescription(e.target.value)}
+                    placeholder={t(
+                      'sprite.panel.additionalNotesPlaceholder',
+                      'e.g., make it 16-bit style, add blue cape...'
+                    )}
+                    className="w-full h-16 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 resize-none focus:border-yellow-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
             <Button
               onClick={() => setCurrentStep(1)}
-              disabled={!characterDescription.trim()}
+              disabled={inputMode === 'text' ? !characterDescription.trim() : !referenceImageUrl}
               className="w-full"
             >
               {t('sprite.panel.next', 'Next')}
@@ -415,7 +560,7 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
         )}
 
         {/* 步骤 4: 预览动画 */}
-        {currentStep === 3 && extractedFrames.length > 0 && (
+        {currentStep === 3 && extractedFrames.length > 0 && !showSandbox && (
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-300">
               {t('sprite.panel.animationPreview', 'Animation Preview')}
@@ -431,16 +576,65 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
             />
 
             {/* 操作按钮 */}
-            <div className="flex space-x-2">
-              <Button variant="outline" onClick={handleDownload}>
-                <Download className="w-4 h-4 mr-2" />
-                {t('sprite.panel.downloadSheet', 'Download Sprite Sheet')}
+            <div className="flex flex-col space-y-2">
+              {/* 沙盒模式按钮 */}
+              <Button
+                onClick={() => setShowSandbox(true)}
+                className="w-full"
+              >
+                <Gamepad2 className="w-4 h-4 mr-2" />
+                {t('sprite.sandbox.title', 'Enter Sandbox')}
               </Button>
-              <Button variant="outline" onClick={handleReset}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                {t('sprite.panel.newSprite', 'Create New Sprite')}
+
+              <div className="flex space-x-2">
+                <Button variant="outline" onClick={handleDownload} className="flex-1">
+                  <Download className="w-4 h-4 mr-2" />
+                  {t('sprite.panel.downloadSheet', 'Download')}
+                </Button>
+                <Button variant="outline" onClick={handleReset} className="flex-1">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {t('sprite.panel.newSprite', 'New')}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 沙盒模式 */}
+        {currentStep === 3 && showSandbox && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-gray-300">
+                {t('sprite.sandbox.title', 'Sprite Sandbox')}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSandbox(false)}
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                {t('sprite.panel.back', 'Back')}
               </Button>
             </div>
+
+            {/* 沙盒组件 */}
+            <SpriteSandbox
+              frames={{
+                idle: extractedFrames,
+                walk: extractedFrames,
+                run: extractedFrames,
+                jump: extractedFrames,
+                fall: extractedFrames,
+                attack: extractedFrames,
+                hurt: extractedFrames,
+              }}
+              frameWidth={frameWidth}
+              frameHeight={frameHeight}
+            />
+
+            <p className="text-xs text-gray-500 text-center">
+              {t('sprite.sandbox.description', 'Test your sprite in a game environment')}
+            </p>
           </div>
         )}
       </div>

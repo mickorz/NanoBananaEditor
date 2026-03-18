@@ -275,6 +275,51 @@
       "extractedFrames": "已提取帧",
       "error": "帧提取失败",
       "download": "下载"
+    },
+    "splitter": {
+      "cols": "列数",
+      "rows": "行数",
+      "frames": "帧数",
+      "reset": "重置",
+      "extract": "提取帧",
+      "extracted": "已提取帧",
+      "imageSize": "图片尺寸"
+    },
+    "sandbox": {
+      "title": "精灵沙盒",
+      "description": "在游戏环境中测试你的精灵",
+      "play": "播放",
+      "pause": "暂停",
+      "paused": "已暂停",
+      "pressP": "按 P 键播放",
+      "reset": "重置",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏",
+      "wasdHint": "移动",
+      "shiftHint": "奔跑",
+      "attackHint": "攻击",
+      "noFrames": "未加载精灵帧",
+      "uploadFirst": "请先生成或上传精灵图"
+    },
+    "background": {
+      "style": "背景风格",
+      "timeOfDay": "时间",
+      "generateAll": "生成3层视差背景",
+      "generating": "生成中 第",
+      "preview": "预览",
+      "separate": "分层",
+      "combined": "组合",
+      "speed": "速度",
+      "notGenerated": "未生成"
+    },
+    "panel": {
+      "textMode": "文字",
+      "imageMode": "图片",
+      "uploadReference": "上传参考图片",
+      "clickToUpload": "点击上传",
+      "supportedFormats": "支持 PNG、JPG、WEBP",
+      "additionalNotes": "补充说明 (可选)",
+      "additionalNotesPlaceholder": "例如：16位风格，添加蓝色披风..."
     }
   }
 }
