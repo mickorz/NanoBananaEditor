@@ -9,13 +9,16 @@
  *   └─> AdvancedSettings     高级设置组件
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wand2, Eraser } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAppStore } from '../store/useAppStore';
 import { useImageGeneration, useImageEditing, useBackgroundRemoval } from '../hooks';
 import { PromptHints } from './PromptHints';
+import { createAsset, createProject } from '../utils/assetUtils';
+import { generateId } from '../utils/imageUtils';
+import type { Generation } from '../types';
 import {
   ModeSelector,
   ImageUploader,
@@ -38,6 +41,7 @@ export const PromptComposer: React.FC = () => {
     seed,
     setSeed,
     isGenerating,
+    setIsGenerating,
     uploadedImages,
     addUploadedImage,
     removeUploadedImage,
@@ -55,25 +59,74 @@ export const PromptComposer: React.FC = () => {
     setAIProvider,
     aiModel,
     setAIModel,
+    currentProject,
+    addGeneration,
+    selectGeneration,
+    selectEdit,
   } = useAppStore();
 
   const { generate } = useImageGeneration();
   const { edit } = useImageEditing();
+  const [showHintsModal, setShowHintsModal] = useState(false);
+
+  // 背景移除成功后的回调 - 保存结果到 generations
+  const handleBgRemovalSuccess = useCallback(
+    (result: { originalUrl: string; processedUrl: string; blob: Blob }) => {
+      // 从 base64 URL 提取数据
+      const extractBase64 = (url: string): string => {
+        if (url.includes('base64,')) {
+          return url.split('base64,')[1];
+        }
+        return url;
+      };
+
+      // 创建资源对象
+      const sourceAsset = createAsset(extractBase64(result.originalUrl), 'original');
+      const outputAsset = createAsset(extractBase64(result.processedUrl), 'output');
+
+      // 创建 Generation 记录
+      const generation: Generation = {
+        id: generateId(),
+        prompt: t('backgroundRemoval.generationPrompt', 'Background Removal'),
+        parameters: {},
+        sourceAssets: [sourceAsset],
+        outputAssets: [outputAsset],
+        modelVersion: '@imgly/background-removal',
+        timestamp: Date.now(),
+      };
+
+      // 保存到项目
+      if (currentProject) {
+        addGeneration(generation);
+      } else {
+        // 如果没有当前项目，创建一个新项目
+        const newProject = createProject({
+          generations: [generation],
+          edits: [],
+        });
+        useAppStore.getState().setCurrentProject(newProject);
+      }
+
+      // 选中新生成的结果
+      selectGeneration(generation.id);
+      selectEdit(null);
+    },
+    [currentProject, addGeneration, selectGeneration, selectEdit, t]
+  );
+
   const {
-    state: bgState,
     progress: bgProgress,
-    result: bgResult,
     isIdle: isBgIdle,
     isLoading: isBgLoading,
     isProcessing: isBgProcessing,
     isCompleted: isBgCompleted,
-    hasError: isBgError,
     progressPercentage: bgProgressPercentage,
     removeBackground,
-    downloadResult,
     reset: resetBgRemoval,
-  } = useBackgroundRemoval({ showToast: true });
-  const [showHintsModal, setShowHintsModal] = useState(false);
+  } = useBackgroundRemoval({
+    showToast: true,
+    onSuccess: handleBgRemovalSuccess,
+  });
 
   const handleGenerate = () => {
     if (!currentPrompt.trim()) {
@@ -97,6 +150,24 @@ export const PromptComposer: React.FC = () => {
     edit(currentPrompt);
   };
 
+  // 处理背景移除
+  const handleRemoveBackground = async () => {
+    if (!canvasImage) return;
+
+    setIsGenerating(true);
+    try {
+      // 从 canvasImage 创建 File 并处理
+      const response = await fetch(canvasImage);
+      const blob = await response.blob();
+      const file = new File([blob], 'image.png', { type: blob.type });
+      await removeBackground(file);
+    } catch (error) {
+      console.error('Background removal failed:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleClearSession = () => {
     setCurrentPrompt('');
     clearUploadedImages();
@@ -105,6 +176,7 @@ export const PromptComposer: React.FC = () => {
     setCanvasImage(null);
     setSeed(null);
     setTemperature(0.7);
+    resetBgRemoval();
   };
 
   if (!showPromptPanel) {
@@ -149,7 +221,7 @@ export const PromptComposer: React.FC = () => {
           onHidePanel={() => setShowPromptPanel(false)}
         />
 
-        {/* 图片上传 */}
+        {/* 图片上传 - 所有模式都使用 */}
         <ImageUploader
           selectedTool={selectedTool as ToolId}
           uploadedImages={uploadedImages}
@@ -184,15 +256,7 @@ export const PromptComposer: React.FC = () => {
 
             {/* 移除背景按钮 */}
             <Button
-              onClick={async () => {
-                if (canvasImage) {
-                  // 从 canvasImage 创建 File 并处理
-                  const response = await fetch(canvasImage);
-                  const blob = await response.blob();
-                  const file = new File([blob], 'image.png', { type: blob.type });
-                  await removeBackground(file);
-                }
-              }}
+              onClick={handleRemoveBackground}
               disabled={isBgLoading || isBgProcessing || !canvasImage}
               className="w-full h-14 text-base font-medium"
             >
@@ -209,27 +273,18 @@ export const PromptComposer: React.FC = () => {
               )}
             </Button>
 
-            {/* 结果操作 */}
-            {isBgCompleted && bgResult && (
-              <div className="space-y-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => downloadResult('bg-removed.png')}
-                  className="w-full"
-                >
-                  {t('backgroundRemoval.download', 'Download Result')}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    resetBgRemoval();
-                    setCanvasImage(null);
-                  }}
-                  className="w-full"
-                >
-                  {t('backgroundRemoval.newImage', 'Process New Image')}
-                </Button>
-              </div>
+            {/* 处理新图片按钮 */}
+            {isBgCompleted && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetBgRemoval();
+                  setCanvasImage(null);
+                }}
+                className="w-full"
+              >
+                {t('backgroundRemoval.newImage', 'Process New Image')}
+              </Button>
             )}
           </div>
         )}
