@@ -6,18 +6,16 @@
  *   ├─> ModeSelector         模式选择器
  *   ├─> ImageUploader        图片上传组件
  *   ├─> PromptInput          提示词输入组件
- *   ├─> AdvancedSettings     高级设置组件
- *   └─> BackgroundRemovalPanel 背景移除面板
+ *   └─> AdvancedSettings     高级设置组件
  */
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2 } from 'lucide-react';
+import { Wand2, Eraser } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAppStore } from '../store/useAppStore';
-import { useImageGeneration, useImageEditing } from '../hooks';
+import { useImageGeneration, useImageEditing, useBackgroundRemoval } from '../hooks';
 import { PromptHints } from './PromptHints';
-import { BackgroundRemovalPanel } from './backgroundRemoval';
 import {
   ModeSelector,
   ImageUploader,
@@ -61,6 +59,20 @@ export const PromptComposer: React.FC = () => {
 
   const { generate } = useImageGeneration();
   const { edit } = useImageEditing();
+  const {
+    state: bgState,
+    progress: bgProgress,
+    result: bgResult,
+    isIdle: isBgIdle,
+    isLoading: isBgLoading,
+    isProcessing: isBgProcessing,
+    isCompleted: isBgCompleted,
+    hasError: isBgError,
+    progressPercentage: bgProgressPercentage,
+    removeBackground,
+    downloadResult,
+    reset: resetBgRemoval,
+  } = useBackgroundRemoval({ showToast: true });
   const [showHintsModal, setShowHintsModal] = useState(false);
 
   const handleGenerate = () => {
@@ -127,18 +139,18 @@ export const PromptComposer: React.FC = () => {
         {/* 模式选择器 */}
         <ModeSelector
           selectedTool={selectedTool as ToolId}
-          onToolChange={(tool) => setSelectedTool(tool)}
+          onToolChange={(tool) => {
+            setSelectedTool(tool);
+            if (tool !== 'background') {
+              resetBgRemoval();
+            }
+          }}
           onHelpClick={() => setShowHintsModal(true)}
           onHidePanel={() => setShowPromptPanel(false)}
         />
 
-        {/* 背景移除模式 */}
-        {selectedTool === 'background' ? (
-          <BackgroundRemovalPanel />
-        ) : (
-          <>
-            {/* 图片上传 */}
-            <ImageUploader
+        {/* 图片上传 */}
+        <ImageUploader
           selectedTool={selectedTool as ToolId}
           uploadedImages={uploadedImages}
           editReferenceImages={editReferenceImages}
@@ -151,41 +163,115 @@ export const PromptComposer: React.FC = () => {
           onClearUploadedImages={clearUploadedImages}
         />
 
-        {/* 提示词输入 */}
-        <PromptInput
-          selectedTool={selectedTool as ToolId}
-          currentPrompt={currentPrompt}
-          onPromptChange={setCurrentPrompt}
-          onHelpClick={() => setShowHintsModal(true)}
-        />
+        {/* 背景移除按钮和进度 */}
+        {selectedTool === 'background' && (
+          <div className="space-y-4">
+            {/* 进度条 */}
+            {(isBgLoading || isBgProcessing) && bgProgress && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-400">
+                  <span>{t('backgroundRemoval.processing', 'Processing...')}</span>
+                  <span>{bgProgressPercentage}%</span>
+                </div>
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-400 transition-all duration-300"
+                    style={{ width: `${bgProgressPercentage}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
-        {/* 生成按钮 */}
-        <Button
-          onClick={handleGenerate}
-          disabled={isGenerating || !currentPrompt.trim()}
-          className="w-full h-14 text-base font-medium"
-        >
-          {isGenerating ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2" />
-              {t('promptComposer.generating')}
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4 mr-2" />
-              {selectedTool === 'generate' ? t('promptComposer.generate') : t('promptComposer.applyEdit')}
-            </>
-          )}
-        </Button>
+            {/* 移除背景按钮 */}
+            <Button
+              onClick={async () => {
+                if (canvasImage) {
+                  // 从 canvasImage 创建 File 并处理
+                  const response = await fetch(canvasImage);
+                  const blob = await response.blob();
+                  const file = new File([blob], 'image.png', { type: blob.type });
+                  await removeBackground(file);
+                }
+              }}
+              disabled={isBgLoading || isBgProcessing || !canvasImage}
+              className="w-full h-14 text-base font-medium"
+            >
+              {isBgLoading || isBgProcessing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2" />
+                  {t('backgroundRemoval.processing', 'Processing...')}
+                </>
+              ) : (
+                <>
+                  <Eraser className="h-4 w-4 mr-2" />
+                  {t('backgroundRemoval.start', 'Remove Background')}
+                </>
+              )}
+            </Button>
 
-        {/* 高级设置 */}
-        <AdvancedSettings
-          temperature={temperature}
-          seed={seed}
-          onTemperatureChange={setTemperature}
-          onSeedChange={setSeed}
-          onClearSession={handleClearSession}
-        />
+            {/* 结果操作 */}
+            {isBgCompleted && bgResult && (
+              <div className="space-y-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => downloadResult('bg-removed.png')}
+                  className="w-full"
+                >
+                  {t('backgroundRemoval.download', 'Download Result')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    resetBgRemoval();
+                    setCanvasImage(null);
+                  }}
+                  className="w-full"
+                >
+                  {t('backgroundRemoval.newImage', 'Process New Image')}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 非背景移除模式的 UI */}
+        {selectedTool !== 'background' && (
+          <>
+            {/* 提示词输入 */}
+            <PromptInput
+              selectedTool={selectedTool as ToolId}
+              currentPrompt={currentPrompt}
+              onPromptChange={setCurrentPrompt}
+              onHelpClick={() => setShowHintsModal(true)}
+            />
+
+            {/* 生成按钮 */}
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || !currentPrompt.trim()}
+              className="w-full h-14 text-base font-medium"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2" />
+                  {t('promptComposer.generating')}
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4 mr-2" />
+                  {selectedTool === 'generate' ? t('promptComposer.generate') : t('promptComposer.applyEdit')}
+                </>
+              )}
+            </Button>
+
+            {/* 高级设置 */}
+            <AdvancedSettings
+              temperature={temperature}
+              seed={seed}
+              onTemperatureChange={setTemperature}
+              onSeedChange={setSeed}
+              onClearSession={handleClearSession}
+            />
           </>
         )}
 
