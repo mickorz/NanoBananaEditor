@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { Project, Generation, Edit, SegmentationMask, BrushStroke, AIProvider } from '../types';
 
+// 连接状态类型
+export type ConnectionStatus = 'idle' | 'testing' | 'connected' | 'disconnected';
+
+// 各 Provider 的连接状态
+export type ConnectionStatusMap = Record<AIProvider, ConnectionStatus>;
+
 interface AppState {
   // Current project
   currentProject: Project | null;
@@ -41,6 +47,12 @@ interface AppState {
   // AI Provider
   aiProvider: AIProvider;
 
+  // AI Model
+  aiModel: string;
+
+  // 连接状态
+  connectionStatus: ConnectionStatusMap;
+
   // Actions
   setCurrentProject: (project: Project | null) => void;
   setCanvasImage: (url: string | null) => void;
@@ -78,6 +90,12 @@ interface AppState {
 
   // AI Provider actions
   setAIProvider: (provider: AIProvider) => void;
+
+  // AI Model actions
+  setAIModel: (model: string) => void;
+
+  // 连接状态 actions
+  setConnectionStatus: (provider: AIProvider, status: ConnectionStatus) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -112,6 +130,15 @@ export const useAppStore = create<AppState>()(
 
       // AI Provider 默认使用 ai-studio
       aiProvider: 'ai-studio',
+
+      // AI Model 默认使用 gemini-2.5-flash-image
+      aiModel: 'gemini-2.5-flash-image',
+
+      // 连接状态初始值
+      connectionStatus: {
+        'ai-studio': 'idle',
+        'gemini': 'idle',
+      },
 
       // Actions
       setCurrentProject: (project) => set({ currentProject: project }),
@@ -173,6 +200,15 @@ export const useAppStore = create<AppState>()(
       setSelectedTool: (tool) => set({ selectedTool: tool }),
 
       setAIProvider: (provider) => set({ aiProvider: provider }),
+
+      setAIModel: (model) => set({ aiModel: model }),
+
+      setConnectionStatus: (provider, status) => set((state) => ({
+        connectionStatus: {
+          ...state.connectionStatus,
+          [provider]: status,
+        },
+      })),
     }),
     { name: 'nano-banana-store' }
   )

@@ -1,10 +1,11 @@
 {
   "header": {
-    "title": "Nano Banana AI Image Editor",
-    "titleShort": "NB Editor"
+    "title": "AI Image Generation",
+    "titleShort": "AI Image"
   },
   "promptComposer": {
     "aiChannel": "AI Channel",
+    "aiModel": "AI Model",
     "mode": "Mode",
     "tools": {
       "generate": "Generate",
@@ -87,7 +88,7 @@
     "brush": "Brush",
     "masks": "Masks",
     "download": "Download",
-    "welcome": "Welcome to Nano Banana Editor",
+    "welcome": "Welcome to AI Image Generation",
     "welcomeHintGenerate": "Start by describing what you want to create in the prompt box",
     "welcomeHintEdit": "Upload an image to begin editing",
     "creating": "Creating your image...",
@@ -97,7 +98,7 @@
     "poweredBy": "Powered by Gemini 2.5 Flash Image"
   },
   "infoModal": {
-    "title": "About Nano Banana AI Image Editor",
+    "title": "About AI Image Generation",
     "developedBy": "Developed by",
     "learnSection": {
       "title": "Learn to Build AI Apps & More Solutions",

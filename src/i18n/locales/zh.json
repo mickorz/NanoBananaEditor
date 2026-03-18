@@ -1,10 +1,11 @@
 {
   "header": {
-    "title": "Nano Banana AI 图片编辑器",
-    "titleShort": "NB 编辑器"
+    "title": "AI图像生成",
+    "titleShort": "AI图像"
   },
   "promptComposer": {
     "aiChannel": "AI 渠道",
+    "aiModel": "AI 模型",
     "mode": "模式",
     "tools": {
       "generate": "生成",
@@ -87,7 +88,7 @@
     "brush": "画笔",
     "masks": "蒙版",
     "download": "下载",
-    "welcome": "欢迎使用 Nano Banana 编辑器",
+    "welcome": "欢迎使用 AI 图像生成",
     "welcomeHintGenerate": "在提示框中描述你想要创建的内容",
     "welcomeHintEdit": "上传一张图片开始编辑",
     "creating": "正在创建图片...",
@@ -97,7 +98,7 @@
     "poweredBy": "由 Gemini 2.5 Flash Image 提供支持"
   },
   "infoModal": {
-    "title": "关于 Nano Banana AI 图片编辑器",
+    "title": "关于 AI 图像生成",
     "developedBy": "开发者",
     "learnSection": {
       "title": "学习构建 AI 应用和更多解决方案",
