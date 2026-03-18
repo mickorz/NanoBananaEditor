@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './ui/Button';
 import { HelpCircle } from 'lucide-react';
 import { InfoModal } from './InfoModal';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const Header: React.FC = () => {
+  const { t } = useTranslation();
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   return (
@@ -13,10 +16,10 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             <div className="text-2xl">🍌</div>
             <h1 className="text-xl font-semibold text-gray-100 hidden md:block">
-              Nano Banana AI Image Editor
+              {t('header.title')}
             </h1>
             <h1 className="text-xl font-semibold text-gray-100 md:hidden">
-              NB Editor
+              {t('header.titleShort')}
             </h1>
           </div>
           <div className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
@@ -25,8 +28,9 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button 
-            variant="ghost" 
+          <LanguageSwitcher />
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => setShowInfoModal(true)}
           >
@@ -34,7 +38,7 @@ export const Header: React.FC = () => {
           </Button>
         </div>
       </header>
-      
+
       <InfoModal open={showInfoModal} onOpenChange={setShowInfoModal} />
     </>
   );

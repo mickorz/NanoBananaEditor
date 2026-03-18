@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Stage, Layer, Image as KonvaImage, Line } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Stage as KonvaStage } from 'konva/lib/Stage';
@@ -10,6 +11,7 @@ import { cn } from '../utils/cn';
 const MASK_STROKE_COLOR = '#A855F7';
 
 export const ImageCanvas: React.FC = () => {
+  const { t } = useTranslation();
   const {
     canvasImage,
     canvasZoom,
@@ -209,7 +211,7 @@ export const ImageCanvas: React.FC = () => {
             {selectedTool === 'mask' && (
               <>
                 <div className="flex items-center space-x-2 mr-2">
-                  <span className="text-xs text-gray-400">Brush:</span>
+                  <span className="text-xs text-gray-400">{t('imageCanvas.brush')}:</span>
                   <input
                     type="range"
                     min="5"
@@ -238,13 +240,13 @@ export const ImageCanvas: React.FC = () => {
               className={cn(showMasks && 'bg-yellow-400/10 border-yellow-400/50')}
             >
               {showMasks ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              <span className="hidden sm:inline ml-2">Masks</span>
+              <span className="hidden sm:inline ml-2">{t('imageCanvas.masks')}</span>
             </Button>
 
             {canvasImage && (
               <Button variant="secondary" size="sm" onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Download</span>
+                <span className="hidden sm:inline">{t('imageCanvas.download')}</span>
               </Button>
             )}
           </div>
@@ -256,12 +258,12 @@ export const ImageCanvas: React.FC = () => {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-xl font-medium text-gray-300 mb-2">
-                Welcome to Nano Banana Editor
+                {t('imageCanvas.welcome')}
               </h2>
               <p className="text-gray-500 max-w-md">
                 {selectedTool === 'generate'
-                  ? 'Start by describing what you want to create in the prompt box'
-                  : 'Upload an image to begin editing'}
+                  ? t('imageCanvas.welcomeHintGenerate')
+                  : t('imageCanvas.welcomeHintEdit')}
               </p>
             </div>
           </div>
@@ -271,7 +273,7 @@ export const ImageCanvas: React.FC = () => {
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mb-4" />
-              <p className="text-gray-300">Creating your image...</p>
+              <p className="text-gray-300">{t('imageCanvas.creating')}</p>
             </div>
           </div>
         )}
@@ -347,13 +349,13 @@ export const ImageCanvas: React.FC = () => {
           <div className="flex items-center space-x-4">
             {brushStrokes.length > 0 && (
               <span className="text-yellow-400">
-                {brushStrokes.length} brush stroke{brushStrokes.length !== 1 ? 's' : ''}
+                {brushStrokes.length} {brushStrokes.length === 1 ? t('imageCanvas.brushStroke') : t('imageCanvas.brushStrokes')}
               </span>
             )}
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-500">(C) 2025 Mark Fulton</span>
+            <span className="text-xs text-gray-500">{t('imageCanvas.copyright')}</span>
             <span className="text-gray-600 hidden md:inline">|</span>
             <a
               href="https://www.reinventing.ai/"
@@ -364,7 +366,7 @@ export const ImageCanvas: React.FC = () => {
               Reinventing.AI Solutions
             </a>
             <span className="text-gray-600 hidden md:inline">|</span>
-            <span className="hidden md:inline">Powered by Gemini 2.5 Flash Image</span>
+            <span className="hidden md:inline">{t('imageCanvas.poweredBy')}</span>
           </div>
         </div>
       </div>

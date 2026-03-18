@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { History, Download, Image as ImageIcon } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from './ui/Button';
@@ -6,6 +7,7 @@ import { cn } from '../utils/cn';
 import { ImagePreviewModal } from './ImagePreviewModal';
 
 export const HistoryPanel: React.FC = () => {
+  const { t } = useTranslation();
   const {
     currentProject,
     canvasImage,
@@ -108,7 +110,7 @@ export const HistoryPanel: React.FC = () => {
         <button
           onClick={() => setShowHistory(true)}
           className="w-6 h-16 bg-gray-800 hover:bg-gray-700 rounded-l-lg border border-r-0 border-gray-700 flex items-center justify-center transition-colors group"
-          title="Show History Panel"
+          title={t('historyPanel.showHistoryPanel')}
         >
           <div className="flex flex-col space-y-1">
             <div className="w-1 h-1 bg-gray-500 group-hover:bg-gray-400 rounded-full" />
@@ -125,24 +127,24 @@ export const HistoryPanel: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <History className="h-5 w-5 text-gray-400" />
-          <h3 className="text-sm font-medium text-gray-300">History & Variants</h3>
+          <h3 className="text-sm font-medium text-gray-300">{t('historyPanel.title')}</h3>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setShowHistory(false)}
           className="h-6 w-6"
-          title="Hide History Panel"
+          title={t('historyPanel.hideHistoryPanel')}
         >
           x
         </Button>
       </div>
 
       <div className="mb-6 flex-shrink-0">
-        <h4 className="text-xs font-medium text-gray-400 mb-3">Current Variants</h4>
+        <h4 className="text-xs font-medium text-gray-400 mb-3">{t('historyPanel.currentVariants')}</h4>
         {generations.length === 0 && edits.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-sm text-gray-500">No generations yet</p>
+            <p className="text-sm text-gray-500">{t('historyPanel.noGenerations')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -166,7 +168,7 @@ export const HistoryPanel: React.FC = () => {
                 {generation.outputAssets[0] ? (
                   <img
                     src={generation.outputAssets[0].url}
-                    alt="Generated variant"
+                    alt={t('historyPanel.generatedVariant')}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -200,7 +202,7 @@ export const HistoryPanel: React.FC = () => {
                 {edit.outputAssets[0] ? (
                   <img
                     src={edit.outputAssets[0].url}
-                    alt="Edited variant"
+                    alt={t('historyPanel.editedVariant')}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -209,7 +211,7 @@ export const HistoryPanel: React.FC = () => {
                   </div>
                 )}
                 <div className="absolute top-2 left-2 bg-purple-900/80 text-xs px-2 py-1 rounded">
-                  Edit #{index + 1}
+                  {t('historyPanel.edit')} #{index + 1}
                 </div>
               </div>
             ))}
@@ -219,16 +221,16 @@ export const HistoryPanel: React.FC = () => {
 
       {(canvasImage || imageDimensions) && (
         <div className="mb-4 p-3 bg-gray-900 rounded-lg border border-gray-700">
-          <h4 className="text-xs font-medium text-gray-400 mb-2">Current Image</h4>
+          <h4 className="text-xs font-medium text-gray-400 mb-2">{t('historyPanel.currentImage')}</h4>
           <div className="space-y-1 text-xs text-gray-500">
             {imageDimensions && (
               <div className="flex justify-between">
-                <span>Dimensions:</span>
+                <span>{t('historyPanel.dimensions')}:</span>
                 <span className="text-gray-300">{imageDimensions.width} x {imageDimensions.height}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span>Mode:</span>
+              <span>{t('historyPanel.mode')}:</span>
               <span className="text-gray-300 capitalize">{selectedTool}</span>
             </div>
           </div>
@@ -236,22 +238,22 @@ export const HistoryPanel: React.FC = () => {
       )}
 
       <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700 flex-1 overflow-y-auto min-h-0">
-        <h4 className="text-xs font-medium text-gray-400 mb-2">Generation Details</h4>
+        <h4 className="text-xs font-medium text-gray-400 mb-2">{t('historyPanel.generationDetails')}</h4>
 
         {selectedGeneration && (
           <div className="space-y-3">
             <div className="space-y-2 text-xs text-gray-500">
               <div>
-                <span className="text-gray-400">Prompt:</span>
+                <span className="text-gray-400">{t('historyPanel.prompt')}:</span>
                 <p className="text-gray-300 mt-1">{selectedGeneration.prompt}</p>
               </div>
               <div className="flex justify-between">
-                <span>Model:</span>
+                <span>{t('historyPanel.model')}:</span>
                 <span>{selectedGeneration.modelVersion}</span>
               </div>
               {selectedGeneration.parameters.seed && (
                 <div className="flex justify-between">
-                  <span>Seed:</span>
+                  <span>{t('historyPanel.seed')}:</span>
                   <span>{selectedGeneration.parameters.seed}</span>
                 </div>
               )}
@@ -259,7 +261,7 @@ export const HistoryPanel: React.FC = () => {
 
             {selectedGeneration.sourceAssets.length > 0 && (
               <div>
-                <h5 className="text-xs font-medium text-gray-400 mb-2">Reference Images</h5>
+                <h5 className="text-xs font-medium text-gray-400 mb-2">{t('historyPanel.referenceImages')}</h5>
                 <div className="grid grid-cols-2 gap-2">
                   {selectedGeneration.sourceAssets.map((asset, index) => (
                     <button
@@ -267,22 +269,22 @@ export const HistoryPanel: React.FC = () => {
                       onClick={() =>
                         openPreview(
                           asset.url,
-                          `Reference Image ${index + 1}`,
-                          'This reference image was used to guide the generation'
+                          `${t('historyPanel.referenceImage')} ${index + 1}`,
+                          t('historyPanel.referenceImageDesc')
                         )
                       }
                       className="relative aspect-square rounded border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden group"
                     >
                       <img
                         src={asset.url}
-                        alt={`Reference ${index + 1}`}
+                        alt={`${t('promptComposer.reference')} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                         <ImageIcon className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="absolute bottom-1 left-1 bg-gray-900/80 text-xs px-1 py-0.5 rounded text-gray-300">
-                        Ref {index + 1}
+                        {t('promptComposer.reference')} {index + 1}
                       </div>
                     </button>
                   ))}
@@ -296,21 +298,21 @@ export const HistoryPanel: React.FC = () => {
           <div className="space-y-3">
             <div className="space-y-2 text-xs text-gray-500">
               <div>
-                <span className="text-gray-400">Edit Instruction:</span>
+                <span className="text-gray-400">{t('historyPanel.editInstruction')}:</span>
                 <p className="text-gray-300 mt-1">{selectedEdit.instruction}</p>
               </div>
               <div className="flex justify-between">
-                <span>Type:</span>
-                <span>Image Edit</span>
+                <span>{t('historyPanel.type')}:</span>
+                <span>{t('historyPanel.imageEdit')}</span>
               </div>
               <div className="flex justify-between">
-                <span>Created:</span>
+                <span>{t('historyPanel.created')}:</span>
                 <span>{new Date(selectedEdit.timestamp).toLocaleTimeString()}</span>
               </div>
               {selectedEdit.maskAssetId && (
                 <div className="flex justify-between">
-                  <span>Mask:</span>
-                  <span className="text-purple-400">Applied</span>
+                  <span>{t('historyPanel.mask')}:</span>
+                  <span className="text-purple-400">{t('historyPanel.maskApplied')}</span>
                 </div>
               )}
             </div>
@@ -321,20 +323,20 @@ export const HistoryPanel: React.FC = () => {
               );
               return parentGeneration ? (
                 <div>
-                  <h5 className="text-xs font-medium text-gray-400 mb-2">Original Image</h5>
+                  <h5 className="text-xs font-medium text-gray-400 mb-2">{t('historyPanel.originalImage')}</h5>
                   <button
                     onClick={() =>
                       openPreview(
                         parentGeneration.outputAssets[0]?.url ?? '',
-                        'Original Image',
-                        'The base image that was edited'
+                        t('historyPanel.originalImage'),
+                        t('historyPanel.originalImageDesc')
                       )
                     }
                     className="relative aspect-square w-16 rounded border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden group"
                   >
                     <img
                       src={parentGeneration.outputAssets[0]?.url}
-                      alt="Original"
+                      alt={t('historyPanel.originalImage')}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -351,27 +353,27 @@ export const HistoryPanel: React.FC = () => {
 
                 return (
                   <div>
-                    <h5 className="text-xs font-medium text-gray-400 mb-2">Masked Reference</h5>
+                    <h5 className="text-xs font-medium text-gray-400 mb-2">{t('historyPanel.maskedReference')}</h5>
                     <button
                       onClick={() =>
                         openPreview(
                           maskReferenceAsset.url,
-                          'Masked Reference Image',
-                          'This image with mask overlay was sent to the AI model to guide the edit'
+                          t('historyPanel.maskedReference'),
+                          t('historyPanel.maskedReferenceDesc')
                         )
                       }
                       className="relative aspect-square w-16 rounded border border-gray-700 hover:border-gray-600 transition-colors overflow-hidden group"
                     >
                       <img
                         src={maskReferenceAsset.url}
-                        alt="Masked reference"
+                        alt={t('historyPanel.maskedReference')}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                         <ImageIcon className="h-3 w-3 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="absolute bottom-1 left-1 bg-purple-900/80 text-xs px-1 py-0.5 rounded text-purple-300">
-                        Mask
+                        {t('historyPanel.mask')}
                       </div>
                     </button>
                   </div>
@@ -382,7 +384,7 @@ export const HistoryPanel: React.FC = () => {
 
         {!selectedGeneration && !selectedEdit && (
           <div className="space-y-2 text-xs text-gray-500">
-            <p className="text-gray-400">Select a generation or edit to view details</p>
+            <p className="text-gray-400">{t('historyPanel.selectToViewDetails')}</p>
           </div>
         )}
       </div>
@@ -398,7 +400,7 @@ export const HistoryPanel: React.FC = () => {
           disabled={!getCurrentImageUrl()}
         >
           <Download className="h-4 w-4 mr-2" />
-          Download
+          {t('historyPanel.download')}
         </Button>
       </div>
 

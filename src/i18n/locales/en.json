@@ -1,0 +1,150 @@
+{
+  "header": {
+    "title": "Nano Banana AI Image Editor",
+    "titleShort": "NB Editor"
+  },
+  "promptComposer": {
+    "aiChannel": "AI Channel",
+    "mode": "Mode",
+    "tools": {
+      "generate": "Generate",
+      "generateDesc": "Create from text",
+      "edit": "Edit",
+      "editDesc": "Modify existing",
+      "mask": "Select",
+      "maskDesc": "Paint a mask"
+    },
+    "referenceImages": "Reference Images",
+    "editImage": "Edit Image",
+    "uploadImage": "Upload Image",
+    "maskHint": "Upload an image, then paint the area you want to edit.",
+    "generateHint": "Optional, up to 2 images.",
+    "editHintWithCanvas": "Current image is ready. You can add up to 2 style references.",
+    "editHintNoCanvas": "Upload the base image you want to edit.",
+    "upload": "Upload",
+    "reference": "Ref",
+    "describeGenerate": "Describe what you want to create",
+    "describeEdit": "Describe your changes",
+    "placeholderGenerate": "A serene mountain landscape at sunset with a lake reflecting the golden sky...",
+    "placeholderEdit": "Make the sky more dramatic and add storm clouds...",
+    "promptTooShort": "Add detail for better results",
+    "promptGood": "Good detail level",
+    "promptExcellent": "Excellent prompt detail",
+    "generating": "Generating...",
+    "generate": "Generate",
+    "applyEdit": "Apply Edit",
+    "showAdvanced": "Show Advanced Controls",
+    "hideAdvanced": "Hide Advanced Controls",
+    "clearSession": "Clear Session",
+    "clearConfirmText": "Are you sure you want to clear this session? This will remove all uploads, prompts, and canvas content.",
+    "yesClear": "Yes, Clear",
+    "cancel": "Cancel",
+    "creativity": "Creativity",
+    "seed": "Seed (optional)",
+    "seedPlaceholder": "Random",
+    "shortcuts": "Shortcuts",
+    "shortcutGenerate": "Generate",
+    "shortcutReroll": "Re-roll",
+    "shortcutEditMode": "Edit mode",
+    "shortcutHistory": "History",
+    "shortcutTogglePanel": "Toggle Panel",
+    "showPromptPanel": "Show Prompt Panel",
+    "hidePromptPanel": "Hide Prompt Panel"
+  },
+  "historyPanel": {
+    "title": "History & Variants",
+    "showHistoryPanel": "Show History Panel",
+    "hideHistoryPanel": "Hide History Panel",
+    "currentVariants": "Current Variants",
+    "noGenerations": "No generations yet",
+    "generatedVariant": "Generated variant",
+    "editedVariant": "Edited variant",
+    "edit": "Edit",
+    "currentImage": "Current Image",
+    "dimensions": "Dimensions",
+    "mode": "Mode",
+    "generationDetails": "Generation Details",
+    "prompt": "Prompt",
+    "model": "Model",
+    "seed": "Seed",
+    "referenceImages": "Reference Images",
+    "referenceImage": "Reference Image",
+    "referenceImageDesc": "This reference image was used to guide the generation",
+    "editInstruction": "Edit Instruction",
+    "type": "Type",
+    "imageEdit": "Image Edit",
+    "created": "Created",
+    "mask": "Mask",
+    "maskApplied": "Applied",
+    "originalImage": "Original Image",
+    "originalImageDesc": "The base image that was edited",
+    "maskedReference": "Masked Reference",
+    "maskedReferenceDesc": "This image with mask overlay was sent to the AI model to guide the edit",
+    "selectToViewDetails": "Select a generation or edit to view details",
+    "download": "Download"
+  },
+  "imageCanvas": {
+    "brush": "Brush",
+    "masks": "Masks",
+    "download": "Download",
+    "welcome": "Welcome to Nano Banana Editor",
+    "welcomeHintGenerate": "Start by describing what you want to create in the prompt box",
+    "welcomeHintEdit": "Upload an image to begin editing",
+    "creating": "Creating your image...",
+    "brushStroke": "brush stroke",
+    "brushStrokes": "brush strokes",
+    "copyright": "(C) 2025 Mark Fulton",
+    "poweredBy": "Powered by Gemini 2.5 Flash Image"
+  },
+  "infoModal": {
+    "title": "About Nano Banana AI Image Editor",
+    "developedBy": "Developed by",
+    "learnSection": {
+      "title": "Learn to Build AI Apps & More Solutions",
+      "description": "Learn to vibe code apps like this one and master AI automation, build intelligent agents, and create cutting-edge solutions that drive real business results.",
+      "button": "Join the AI Accelerator Program"
+    },
+    "getCopySection": {
+      "title": "Get a Copy of This App",
+      "description": "Get a copy of this app by joining the Vibe Coding is Life Skool community. Live build sessions, app projects, resources and more in the best vibe coding community on the web.",
+      "button": "Join Vibe Coding is Life Community"
+    }
+  },
+  "promptHints": {
+    "title": "Prompt Quality Tips",
+    "categories": {
+      "subject": "subject",
+      "scene": "scene",
+      "action": "action",
+      "style": "style",
+      "camera": "camera"
+    },
+    "hints": {
+      "subject": {
+        "text": "Be specific about the main subject",
+        "example": "\"A vintage red bicycle\" vs \"bicycle\""
+      },
+      "scene": {
+        "text": "Describe the environment and setting",
+        "example": "\"in a cobblestone alley during golden hour\""
+      },
+      "action": {
+        "text": "Include movement or activity",
+        "example": "\"cyclist pedaling through puddles\""
+      },
+      "style": {
+        "text": "Specify artistic style or mood",
+        "example": "\"cinematic photography, moody lighting\""
+      },
+      "camera": {
+        "text": "Add camera perspective details",
+        "example": "\"shot with 85mm lens, shallow depth of field\""
+      }
+    },
+    "bestPractice": "Best practice: Write full sentences that describe the complete scene, not just keywords. Think \"paint me a picture with words.\""
+  },
+  "languageSwitcher": {
+    "zh": "中文",
+    "en": "English"
+  }
+}

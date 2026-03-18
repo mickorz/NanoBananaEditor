@@ -1,0 +1,150 @@
+{
+  "header": {
+    "title": "Nano Banana AI 图片编辑器",
+    "titleShort": "NB 编辑器"
+  },
+  "promptComposer": {
+    "aiChannel": "AI 渠道",
+    "mode": "模式",
+    "tools": {
+      "generate": "生成",
+      "generateDesc": "从文字创建",
+      "edit": "编辑",
+      "editDesc": "修改现有图片",
+      "mask": "选择",
+      "maskDesc": "绘制蒙版"
+    },
+    "referenceImages": "参考图片",
+    "editImage": "编辑图片",
+    "uploadImage": "上传图片",
+    "maskHint": "上传一张图片，然后绘制你想要编辑的区域。",
+    "generateHint": "可选，最多2张图片。",
+    "editHintWithCanvas": "当前图片已就绪。你可以添加最多2张风格参考图。",
+    "editHintNoCanvas": "上传你想要编辑的基础图片。",
+    "upload": "上传",
+    "reference": "参考图",
+    "describeGenerate": "描述你想要创建的内容",
+    "describeEdit": "描述你的修改",
+    "placeholderGenerate": "宁静的山脉风景，夕阳西下，湖泊倒映着金色的天空...",
+    "placeholderEdit": "让天空更加戏剧化，添加风暴云层...",
+    "promptTooShort": "添加更多细节以获得更好的效果",
+    "promptGood": "细节程度良好",
+    "promptExcellent": "提示词细节丰富",
+    "generating": "生成中...",
+    "generate": "生成",
+    "applyEdit": "应用编辑",
+    "showAdvanced": "显示高级控制",
+    "hideAdvanced": "隐藏高级控制",
+    "clearSession": "清除会话",
+    "clearConfirmText": "确定要清除此会话吗？这将移除所有上传的图片、提示词和画布内容。",
+    "yesClear": "确定清除",
+    "cancel": "取消",
+    "creativity": "创意度",
+    "seed": "种子值 (可选)",
+    "seedPlaceholder": "随机",
+    "shortcuts": "快捷键",
+    "shortcutGenerate": "生成",
+    "shortcutReroll": "重新生成",
+    "shortcutEditMode": "编辑模式",
+    "shortcutHistory": "历史记录",
+    "shortcutTogglePanel": "切换面板",
+    "showPromptPanel": "显示提示面板",
+    "hidePromptPanel": "隐藏提示面板"
+  },
+  "historyPanel": {
+    "title": "历史与变体",
+    "showHistoryPanel": "显示历史面板",
+    "hideHistoryPanel": "隐藏历史面板",
+    "currentVariants": "当前变体",
+    "noGenerations": "暂无生成记录",
+    "generatedVariant": "生成变体",
+    "editedVariant": "编辑变体",
+    "edit": "编辑",
+    "currentImage": "当前图片",
+    "dimensions": "尺寸",
+    "mode": "模式",
+    "generationDetails": "生成详情",
+    "prompt": "提示词",
+    "model": "模型",
+    "seed": "种子值",
+    "referenceImages": "参考图片",
+    "referenceImage": "参考图片",
+    "referenceImageDesc": "此参考图片用于指导生成",
+    "editInstruction": "编辑指令",
+    "type": "类型",
+    "imageEdit": "图片编辑",
+    "created": "创建时间",
+    "mask": "蒙版",
+    "maskApplied": "已应用",
+    "originalImage": "原始图片",
+    "originalImageDesc": "被编辑的基础图片",
+    "maskedReference": "蒙版参考",
+    "maskedReferenceDesc": "这张带蒙版覆盖的图片被发送给 AI 模型以指导编辑",
+    "selectToViewDetails": "选择一个生成或编辑以查看详情",
+    "download": "下载"
+  },
+  "imageCanvas": {
+    "brush": "画笔",
+    "masks": "蒙版",
+    "download": "下载",
+    "welcome": "欢迎使用 Nano Banana 编辑器",
+    "welcomeHintGenerate": "在提示框中描述你想要创建的内容",
+    "welcomeHintEdit": "上传一张图片开始编辑",
+    "creating": "正在创建图片...",
+    "brushStroke": "画笔笔触",
+    "brushStrokes": "画笔笔触",
+    "copyright": "(C) 2025 Mark Fulton",
+    "poweredBy": "由 Gemini 2.5 Flash Image 提供支持"
+  },
+  "infoModal": {
+    "title": "关于 Nano Banana AI 图片编辑器",
+    "developedBy": "开发者",
+    "learnSection": {
+      "title": "学习构建 AI 应用和更多解决方案",
+      "description": "学习像这样进行氛围编码开发应用，掌握 AI 自动化，构建智能代理，并创建推动实际业务成果的前沿解决方案。",
+      "button": "加入 AI 加速器计划"
+    },
+    "getCopySection": {
+      "title": "获取此应用的副本",
+      "description": "加入 Vibe Coding is Life Skool 社区以获取此应用的副本。实时代码构建会话、应用项目、资源以及更多内容，尽在网络上最好的氛围编码社区。",
+      "button": "加入 Vibe Coding is Life 社区"
+    }
+  },
+  "promptHints": {
+    "title": "提示词质量技巧",
+    "categories": {
+      "subject": "主体",
+      "scene": "场景",
+      "action": "动作",
+      "style": "风格",
+      "camera": "镜头"
+    },
+    "hints": {
+      "subject": {
+        "text": "具体描述主要主体",
+        "example": "\"一辆复古红色自行车\" 而非 \"自行车\""
+      },
+      "scene": {
+        "text": "描述环境和背景",
+        "example": "\"在金色时刻的鹅卵石小巷中\""
+      },
+      "action": {
+        "text": "包含运动或活动",
+        "example": "\"骑行者踩过水坑\""
+      },
+      "style": {
+        "text": "指定艺术风格或氛围",
+        "example": "\"电影摄影，情绪照明\""
+      },
+      "camera": {
+        "text": "添加镜头视角细节",
+        "example": "\"使用85mm镜头拍摄，浅景深\""
+      }
+    },
+    "bestPractice": "最佳实践：写出描述完整场景的完整句子，而不仅仅是关键词。想象\"用文字为我画一幅画\"。"
+  },
+  "languageSwitcher": {
+    "zh": "中文",
+    "en": "English"
+  }
+}
