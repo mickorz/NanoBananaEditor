@@ -5,15 +5,16 @@
  *   ├─> generate    生成模式
  *   ├─> edit        编辑模式
  *   ├─> mask        蒙版模式
- *   └─> background  背景移除
+ *   ├─> background  背景移除
+ *   └─> sprite      精灵图生成
  */
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2, Edit3, MousePointer, Eraser } from 'lucide-react';
+import { Wand2, Edit3, MousePointer, Eraser, Gamepad2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-type ToolId = 'generate' | 'edit' | 'mask' | 'background';
+type ToolId = 'generate' | 'edit' | 'mask' | 'background' | 'sprite';
 
 interface ModeSelectorProps {
   selectedTool: ToolId;
@@ -27,6 +28,7 @@ const tools = [
   { id: 'edit' as const, icon: Edit3 },
   { id: 'mask' as const, icon: MousePointer },
   { id: 'background' as const, icon: Eraser },
+  { id: 'sprite' as const, icon: Gamepad2 },
 ];
 
 export const ModeSelector: React.FC<ModeSelectorProps> = ({

@@ -15,7 +15,9 @@
       "mask": "选择",
       "maskDesc": "绘制蒙版",
       "background": "去背",
-      "backgroundDesc": "移除图片背景"
+      "backgroundDesc": "移除图片背景",
+      "sprite": "精灵图",
+      "spriteDesc": "生成游戏精灵图"
     },
     "referenceImages": "参考图片",
     "editImage": "编辑图片",
@@ -220,5 +222,59 @@
       "death": "死亡"
     },
     "placeholder": "描述你的角色，如：一个穿着蓝色披风的勇士"
+  },
+  "sprite": {
+    "panel": {
+      "characterDescription": "角色描述",
+      "characterPlaceholder": "描述你的角色：外观、服装、颜色等",
+      "next": "下一步",
+      "back": "返回",
+      "animationType": "动画类型",
+      "direction": "方向",
+      "stylePreset": "风格预设",
+      "advancedSettings": "高级设置",
+      "frameWidth": "帧宽度",
+      "frameHeight": "帧高度",
+      "frameCount": "帧数量",
+      "columns": "列数",
+      "generate": "生成",
+      "generating": "生成中...",
+      "generatingSprite": "正在生成精灵图...",
+      "download": "下载",
+      "downloadSheet": "下载精灵图",
+      "startOver": "重新开始",
+      "newSprite": "创建新精灵图",
+      "animationPreview": "动画预览",
+      "waitingForGeneration": "等待生成..."
+    },
+    "preview": {
+      "frames": "帧数",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "reset": "重置",
+      "frameSize": "帧尺寸",
+      "grid": "网格"
+    },
+    "player": {
+      "noFrames": "无帧",
+      "play": "播放",
+      "pause": "暂停",
+      "prev": "上一帧",
+      "next": "下一帧",
+      "reset": "重置",
+      "speed": "速度"
+    },
+    "extract": {
+      "title": "帧提取",
+      "frameWidth": "帧宽度",
+      "frameHeight": "帧高度",
+      "frameCount": "帧数量",
+      "columns": "列数",
+      "extract": "提取帧",
+      "extracting": "提取中...",
+      "extractedFrames": "已提取帧",
+      "error": "帧提取失败",
+      "download": "下载"
+    }
   }
 }

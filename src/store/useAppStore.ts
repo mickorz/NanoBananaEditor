@@ -56,7 +56,7 @@ interface AppState {
   showPromptPanel: boolean;
   
   // UI state
-  selectedTool: 'generate' | 'edit' | 'mask' | 'background';
+  selectedTool: 'generate' | 'edit' | 'mask' | 'background' | 'sprite';
 
   // AI Provider
   aiProvider: AIProvider;
@@ -103,7 +103,7 @@ interface AppState {
   
   setShowPromptPanel: (show: boolean) => void;
   
-  setSelectedTool: (tool: 'generate' | 'edit' | 'mask' | 'background') => void;
+  setSelectedTool: (tool: 'generate' | 'edit' | 'mask' | 'background' | 'sprite') => void;
 
   // AI Provider actions
   setAIProvider: (provider: AIProvider) => void;

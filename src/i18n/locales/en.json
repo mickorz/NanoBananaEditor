@@ -15,7 +15,9 @@
       "mask": "Select",
       "maskDesc": "Paint a mask",
       "background": "Remove BG",
-      "backgroundDesc": "Remove image background"
+      "backgroundDesc": "Remove image background",
+      "sprite": "Sprite",
+      "spriteDesc": "Generate game sprites"
     },
     "referenceImages": "Reference Images",
     "editImage": "Edit Image",
@@ -220,5 +222,59 @@
       "death": "Death"
     },
     "placeholder": "Describe your character, e.g., a warrior wearing a blue cape"
+  },
+  "sprite": {
+    "panel": {
+      "characterDescription": "Character Description",
+      "characterPlaceholder": "Describe your character: appearance, clothing, colors, etc.",
+      "next": "Next",
+      "back": "Back",
+      "animationType": "Animation Type",
+      "direction": "Direction",
+      "stylePreset": "Style Preset",
+      "advancedSettings": "Advanced Settings",
+      "frameWidth": "Frame Width",
+      "frameHeight": "Frame Height",
+      "frameCount": "Frame Count",
+      "columns": "Columns",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "generatingSprite": "Generating sprite sheet...",
+      "download": "Download",
+      "downloadSheet": "Download Sprite Sheet",
+      "startOver": "Start Over",
+      "newSprite": "Create New Sprite",
+      "animationPreview": "Animation Preview",
+      "waitingForGeneration": "Waiting for generation..."
+    },
+    "preview": {
+      "frames": "Frames",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "reset": "Reset",
+      "frameSize": "Frame Size",
+      "grid": "Grid"
+    },
+    "player": {
+      "noFrames": "No frames",
+      "play": "Play",
+      "pause": "Pause",
+      "prev": "Previous Frame",
+      "next": "Next Frame",
+      "reset": "Reset",
+      "speed": "Speed"
+    },
+    "extract": {
+      "title": "Frame Extraction",
+      "frameWidth": "Frame Width",
+      "frameHeight": "Frame Height",
+      "frameCount": "Frame Count",
+      "columns": "Columns",
+      "extract": "Extract Frames",
+      "extracting": "Extracting...",
+      "extractedFrames": "Extracted Frames",
+      "error": "Failed to extract frames",
+      "download": "Download"
+    }
   }
 }

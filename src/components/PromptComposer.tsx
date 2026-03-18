@@ -6,7 +6,8 @@
  *   ├─> ModeSelector         模式选择器
  *   ├─> ImageUploader        图片上传组件
  *   ├─> PromptInput          提示词输入组件
- *   └─> AdvancedSettings     高级设置组件
+ *   ├─> AdvancedSettings     高级设置组件
+ *   └─> SpriteGenerationPanel 精灵图生成面板
  */
 
 import React, { useState, useCallback } from 'react';
@@ -26,8 +27,14 @@ import {
   AdvancedSettings,
   AIChannelSelector,
 } from './promptComposerParts';
+import { SpriteGenerationPanel, type SpriteGenerationConfig } from './sprite';
+import {
+  CHARACTER_STYLE_PROMPT,
+  SPRITE_ANIMATION_PROMPTS,
+  SPRITE_DIRECTION_PROMPTS,
+} from '../constants/spritePrompts';
 
-type ToolId = 'generate' | 'edit' | 'mask' | 'background';
+type ToolId = 'generate' | 'edit' | 'mask' | 'background' | 'sprite';
 
 export const PromptComposer: React.FC = () => {
   const { t } = useTranslation();
@@ -316,8 +323,47 @@ export const PromptComposer: React.FC = () => {
           </div>
         )}
 
-        {/* 非背景移除模式的 UI */}
-        {selectedTool !== 'background' && (
+        {/* 精灵图生成模式 - 显示特殊面板 */}
+        {selectedTool === 'sprite' && (
+          <SpriteGenerationPanel
+            onGenerate={(config: SpriteGenerationConfig) => {
+              // 获取动画提示词
+              const animationPrompt = SPRITE_ANIMATION_PROMPTS[config.animationType] || SPRITE_ANIMATION_PROMPTS.idle;
+              // 获取方向提示词
+              const directionPrompt = SPRITE_DIRECTION_PROMPTS[config.direction] || '';
+              // 风格预设
+              const stylePrompt = config.stylePreset || '';
+
+              // 组合完整提示词: 角色描述 + 动画提示 + 方向 + 风格 + 基础要求
+              const fullPrompt = [
+                config.characterDescription,
+                animationPrompt,
+                directionPrompt,
+                stylePrompt,
+                CHARACTER_STYLE_PROMPT,
+              ].filter(Boolean).join('\n\n');
+
+              setCurrentPrompt(fullPrompt);
+
+              // 调用生成 API
+              const referenceImages = uploadedImages
+                .filter((image) => image.includes('base64,'))
+                .map((image) => image.split('base64,')[1]);
+
+              generate({
+                prompt: fullPrompt,
+                referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
+                temperature,
+                seed: seed ?? undefined,
+              });
+            }}
+            isGenerating={isGenerating}
+            generatedImageUrl={canvasImage || undefined}
+          />
+        )}
+
+        {/* 非背景移除和非精灵图模式的 UI */}
+        {selectedTool !== 'background' && selectedTool !== 'sprite' && (
           <>
             {/* 提示词输入 */}
             <PromptInput
