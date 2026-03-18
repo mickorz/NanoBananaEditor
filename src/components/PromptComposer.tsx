@@ -6,7 +6,8 @@
  *   ├─> ModeSelector         模式选择器
  *   ├─> ImageUploader        图片上传组件
  *   ├─> PromptInput          提示词输入组件
- *   └─> AdvancedSettings     高级设置组件
+ *   ├─> AdvancedSettings     高级设置组件
+ *   └─> BackgroundRemovalPanel 背景移除面板
  */
 
 import React, { useState } from 'react';
@@ -16,6 +17,7 @@ import { Button } from './ui/Button';
 import { useAppStore } from '../store/useAppStore';
 import { useImageGeneration, useImageEditing } from '../hooks';
 import { PromptHints } from './PromptHints';
+import { BackgroundRemovalPanel } from './backgroundRemoval';
 import {
   ModeSelector,
   ImageUploader,
@@ -24,7 +26,7 @@ import {
   AIChannelSelector,
 } from './promptComposerParts';
 
-type ToolId = 'generate' | 'edit' | 'mask';
+type ToolId = 'generate' | 'edit' | 'mask' | 'background';
 
 export const PromptComposer: React.FC = () => {
   const { t } = useTranslation();
@@ -130,8 +132,13 @@ export const PromptComposer: React.FC = () => {
           onHidePanel={() => setShowPromptPanel(false)}
         />
 
-        {/* 图片上传 */}
-        <ImageUploader
+        {/* 背景移除模式 */}
+        {selectedTool === 'background' ? (
+          <BackgroundRemovalPanel />
+        ) : (
+          <>
+            {/* 图片上传 */}
+            <ImageUploader
           selectedTool={selectedTool as ToolId}
           uploadedImages={uploadedImages}
           editReferenceImages={editReferenceImages}
@@ -179,6 +186,8 @@ export const PromptComposer: React.FC = () => {
           onSeedChange={setSeed}
           onClearSession={handleClearSession}
         />
+          </>
+        )}
 
         {/* 快捷键提示 */}
         <div className="pt-4 border-t border-gray-800">

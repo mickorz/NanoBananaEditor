@@ -1,12 +1,26 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { Project, Generation, Edit, SegmentationMask, BrushStroke, AIProvider } from '../types';
+import type {
+  SpriteDirection,
+  SpriteAction,
+} from '../services/spriteGeneration';
 
 // 连接状态类型
 export type ConnectionStatus = 'idle' | 'testing' | 'connected' | 'disconnected';
 
 // 各 Provider 的连接状态
 export type ConnectionStatusMap = Record<AIProvider, ConnectionStatus>;
+
+// 精灵图生成设置
+export interface SpriteSettings {
+  style: string;
+  direction: SpriteDirection;
+  action: SpriteAction;
+  frameCount: number;
+  width: number;
+  height: number;
+}
 
 interface AppState {
   // Current project
@@ -42,7 +56,7 @@ interface AppState {
   showPromptPanel: boolean;
   
   // UI state
-  selectedTool: 'generate' | 'edit' | 'mask';
+  selectedTool: 'generate' | 'edit' | 'mask' | 'background';
 
   // AI Provider
   aiProvider: AIProvider;
@@ -52,6 +66,9 @@ interface AppState {
 
   // 连接状态
   connectionStatus: ConnectionStatusMap;
+
+  // 精灵图生成设置
+  spriteSettings: SpriteSettings;
 
   // Actions
   setCurrentProject: (project: Project | null) => void;
@@ -86,7 +103,7 @@ interface AppState {
   
   setShowPromptPanel: (show: boolean) => void;
   
-  setSelectedTool: (tool: 'generate' | 'edit' | 'mask') => void;
+  setSelectedTool: (tool: 'generate' | 'edit' | 'mask' | 'background') => void;
 
   // AI Provider actions
   setAIProvider: (provider: AIProvider) => void;
@@ -96,6 +113,10 @@ interface AppState {
 
   // 连接状态 actions
   setConnectionStatus: (provider: AIProvider, status: ConnectionStatus) => void;
+
+  // 精灵图设置 actions
+  setSpriteSettings: (settings: Partial<SpriteSettings>) => void;
+  resetSpriteSettings: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -138,6 +159,16 @@ export const useAppStore = create<AppState>()(
       connectionStatus: {
         'ai-studio': 'idle',
         'gemini': 'idle',
+      },
+
+      // 精灵图生成设置初始值
+      spriteSettings: {
+        style: 'pixel-32',
+        direction: 'front',
+        action: 'idle',
+        frameCount: 4,
+        width: 32,
+        height: 32,
       },
 
       // Actions
@@ -209,6 +240,24 @@ export const useAppStore = create<AppState>()(
           [provider]: status,
         },
       })),
+
+      setSpriteSettings: (settings) => set((state) => ({
+        spriteSettings: {
+          ...state.spriteSettings,
+          ...settings,
+        },
+      })),
+
+      resetSpriteSettings: () => set({
+        spriteSettings: {
+          style: 'pixel-32',
+          direction: 'front',
+          action: 'idle',
+          frameCount: 4,
+          width: 32,
+          height: 32,
+        },
+      }),
     }),
     { name: 'nano-banana-store' }
   )

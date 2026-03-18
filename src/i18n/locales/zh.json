@@ -13,7 +13,9 @@
       "edit": "编辑",
       "editDesc": "修改现有图片",
       "mask": "选择",
-      "maskDesc": "绘制蒙版"
+      "maskDesc": "绘制蒙版",
+      "background": "去背",
+      "backgroundDesc": "移除图片背景"
     },
     "referenceImages": "参考图片",
     "editImage": "编辑图片",
@@ -147,5 +149,76 @@
   "languageSwitcher": {
     "zh": "中文",
     "en": "English"
+  },
+  "backgroundRemoval": {
+    "title": "背景移除",
+    "description": "上传图片，AI 自动移除背景，生成透明 PNG",
+    "loading": "加载模型中...",
+    "processing": "处理图片中...",
+    "preparing": "准备中...",
+    "success": "背景移除成功！",
+    "error": "背景移除失败，请重试",
+    "errorTitle": "处理失败",
+    "unknownError": "未知错误",
+    "preview": "预览",
+    "dropHere": "松开以上传图片",
+    "dragOrClick": "拖拽图片到此处，或点击选择文件",
+    "supportedFormats": "支持 PNG、JPG、WEBP 格式",
+    "clear": "清除",
+    "original": "原图",
+    "processed": "已处理",
+    "download": "下载结果",
+    "newImage": "处理新图片",
+    "fileSize": "文件大小",
+    "start": "开始移除背景",
+    "progress": {
+      "fetchModel": "获取模型",
+      "inference": "AI 推理",
+      "encode": "编码图片",
+      "decode": "解码图片"
+    }
+  },
+  "spriteGeneration": {
+    "title": "精灵图生成",
+    "description": "输入描述，AI 生成游戏精灵图",
+    "generating": "生成中...",
+    "composing": "合成精灵图...",
+    "success": "精灵图生成成功！",
+    "error": "精灵图生成失败，请重试",
+    "style": "风格",
+    "direction": "方向",
+    "action": "动作",
+    "frameCount": "帧数",
+    "width": "宽度",
+    "height": "高度",
+    "generate": "生成精灵图",
+    "download": "下载精灵图",
+    "downloadFrame": "下载单帧",
+    "preview": "预览",
+    "styles": {
+      "pixel-16": "像素 16x16",
+      "pixel-32": "像素 32x32",
+      "pixel-64": "像素 64x64",
+      "cartoon": "卡通",
+      "anime": "动漫",
+      "realistic": "写实"
+    },
+    "directions": {
+      "front": "正面",
+      "back": "背面",
+      "left": "左侧",
+      "right": "右侧",
+      "up": "向上",
+      "down": "向下"
+    },
+    "actions": {
+      "idle": "站立",
+      "walk": "行走",
+      "run": "奔跑",
+      "attack": "攻击",
+      "hurt": "受伤",
+      "death": "死亡"
+    },
+    "placeholder": "描述你的角色，如：一个穿着蓝色披风的勇士"
   }
 }

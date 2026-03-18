@@ -13,7 +13,9 @@
       "edit": "Edit",
       "editDesc": "Modify existing",
       "mask": "Select",
-      "maskDesc": "Paint a mask"
+      "maskDesc": "Paint a mask",
+      "background": "Remove BG",
+      "backgroundDesc": "Remove image background"
     },
     "referenceImages": "Reference Images",
     "editImage": "Edit Image",
@@ -147,5 +149,76 @@
   "languageSwitcher": {
     "zh": "中文",
     "en": "English"
+  },
+  "backgroundRemoval": {
+    "title": "Background Removal",
+    "description": "Upload an image, AI removes the background automatically, generate transparent PNG",
+    "loading": "Loading model...",
+    "processing": "Processing image...",
+    "preparing": "Preparing...",
+    "success": "Background removed successfully!",
+    "error": "Background removal failed, please retry",
+    "errorTitle": "Processing Failed",
+    "unknownError": "Unknown error",
+    "preview": "Preview",
+    "dropHere": "Drop to upload image",
+    "dragOrClick": "Drag image here, or click to select file",
+    "supportedFormats": "Supports PNG, JPG, WEBP formats",
+    "clear": "Clear",
+    "original": "Original",
+    "processed": "Processed",
+    "download": "Download Result",
+    "newImage": "Process New Image",
+    "fileSize": "File Size",
+    "start": "Start Background Removal",
+    "progress": {
+      "fetchModel": "Fetching model",
+      "inference": "AI inference",
+      "encode": "Encoding image",
+      "decode": "Decoding image"
+    }
+  },
+  "spriteGeneration": {
+    "title": "Sprite Generation",
+    "description": "Enter description, AI generates game sprites",
+    "generating": "Generating...",
+    "composing": "Composing sprite sheet...",
+    "success": "Sprite generation completed!",
+    "error": "Sprite generation failed, please retry",
+    "style": "Style",
+    "direction": "Direction",
+    "action": "Action",
+    "frameCount": "Frame Count",
+    "width": "Width",
+    "height": "Height",
+    "generate": "Generate Sprite",
+    "download": "Download Sprite Sheet",
+    "downloadFrame": "Download Frame",
+    "preview": "Preview",
+    "styles": {
+      "pixel-16": "Pixel 16x16",
+      "pixel-32": "Pixel 32x32",
+      "pixel-64": "Pixel 64x64",
+      "cartoon": "Cartoon",
+      "anime": "Anime",
+      "realistic": "Realistic"
+    },
+    "directions": {
+      "front": "Front",
+      "back": "Back",
+      "left": "Left",
+      "right": "Right",
+      "up": "Up",
+      "down": "Down"
+    },
+    "actions": {
+      "idle": "Idle",
+      "walk": "Walk",
+      "run": "Run",
+      "attack": "Attack",
+      "hurt": "Hurt",
+      "death": "Death"
+    },
+    "placeholder": "Describe your character, e.g., a warrior wearing a blue cape"
   }
 }

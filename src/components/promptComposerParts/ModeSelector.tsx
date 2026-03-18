@@ -2,17 +2,18 @@
  * 模式选择器组件
  *
  * ModeSelector 渲染模式按钮:
- *   ├─> generate  生成模式
- *   ├─> edit      编辑模式
- *   └─> mask      蒙版模式
+ *   ├─> generate    生成模式
+ *   ├─> edit        编辑模式
+ *   ├─> mask        蒙版模式
+ *   └─> background  背景移除
  */
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2, Edit3, MousePointer } from 'lucide-react';
+import { Wand2, Edit3, MousePointer, Eraser } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-type ToolId = 'generate' | 'edit' | 'mask';
+type ToolId = 'generate' | 'edit' | 'mask' | 'background';
 
 interface ModeSelectorProps {
   selectedTool: ToolId;
@@ -25,6 +26,7 @@ const tools = [
   { id: 'generate' as const, icon: Wand2 },
   { id: 'edit' as const, icon: Edit3 },
   { id: 'mask' as const, icon: MousePointer },
+  { id: 'background' as const, icon: Eraser },
 ];
 
 export const ModeSelector: React.FC<ModeSelectorProps> = ({
@@ -56,7 +58,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {tools.map((tool) => (
           <button
             key={tool.id}
