@@ -7,4 +7,8 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    host: true, // 允许通过 IP 地址访问 (0.0.0.0)
+    port: 5173,
+  },
 });

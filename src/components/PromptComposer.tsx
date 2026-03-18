@@ -71,7 +71,7 @@ export const PromptComposer: React.FC = () => {
 
   // 背景移除成功后的回调 - 保存结果到 generations
   const handleBgRemovalSuccess = useCallback(
-    (result: { originalUrl: string; processedUrl: string; blob: Blob }) => {
+    async (result: { originalUrl: string; processedUrl: string; blob: Blob }) => {
       // 从 base64 URL 提取数据
       const extractBase64 = (url: string): string => {
         if (url.includes('base64,')) {
@@ -80,9 +80,36 @@ export const PromptComposer: React.FC = () => {
         return url;
       };
 
+      // 将 Blob 转换为 base64 字符串
+      const blobToBase64 = async (blob: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            if (result.includes('base64,')) {
+              resolve(result.split('base64,')[1]);
+            } else {
+              resolve(result);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      // 获取输出的 base64
+      let outputBase64: string;
+      if (result.processedUrl.startsWith('blob:')) {
+        // 如果是 blob URL，使用 blob 转换
+        outputBase64 = await blobToBase64(result.blob);
+      } else {
+        // 否则直接提取 base64
+        outputBase64 = extractBase64(result.processedUrl);
+      }
+
       // 创建资源对象
       const sourceAsset = createAsset(extractBase64(result.originalUrl), 'original');
-      const outputAsset = createAsset(extractBase64(result.processedUrl), 'output');
+      const outputAsset = createAsset(outputBase64, 'output');
 
       // 创建 Generation 记录
       const generation: Generation = {
