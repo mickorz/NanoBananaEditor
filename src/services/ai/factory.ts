@@ -28,6 +28,7 @@ export interface AIModel {
 // 各 Provider 支持的模型
 export const AVAILABLE_MODELS: Record<AIProvider, AIModel[]> = {
   'ai-studio': [
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview', description: '最新预览版本' },
     { id: 'gemini-2.5-flash-image', name: 'Gemini 2.5 Flash Image', description: '快速图像生成' },
     { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp', description: '实验版本' },
   ],
