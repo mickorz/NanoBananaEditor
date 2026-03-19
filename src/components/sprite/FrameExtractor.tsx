@@ -155,13 +155,6 @@ export const FrameExtractor: React.FC<FrameExtractorProps> = ({
     link.click();
   }, []);
 
-  // 自动提取
-  useEffect(() => {
-    if (imageUrl) {
-      handleExtract();
-    }
-  }, [imageUrl, frameWidth, frameHeight, frameCount, columns]); // 不包含 handleExtract
-
   return (
     <div className={cn('space-y-4', className)}>
       {/* 设置面板 */}
