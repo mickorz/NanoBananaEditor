@@ -265,7 +265,7 @@
       "speed": "Speed"
     },
     "extract": {
-      "title": "Frame Extraction",
+      "title": "Auto Extract",
       "frameWidth": "Frame Width",
       "frameHeight": "Frame Height",
       "frameCount": "Frame Count",
@@ -277,6 +277,7 @@
       "download": "Download"
     },
     "splitter": {
+      "title": "Grid Splitter",
       "cols": "Cols",
       "rows": "Rows",
       "frames": "Frames",

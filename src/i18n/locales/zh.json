@@ -265,7 +265,7 @@
       "speed": "速度"
     },
     "extract": {
-      "title": "帧提取",
+      "title": "自动提取",
       "frameWidth": "帧宽度",
       "frameHeight": "帧高度",
       "frameCount": "帧数量",
@@ -277,6 +277,7 @@
       "download": "下载"
     },
     "splitter": {
+      "title": "可视化网格",
       "cols": "列数",
       "rows": "行数",
       "frames": "帧数",
