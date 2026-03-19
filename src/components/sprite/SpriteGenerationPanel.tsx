@@ -20,6 +20,8 @@ import { SpritePreview } from './SpritePreview';
 import { AnimationPlayer } from './AnimationPlayer';
 import { FrameExtractor } from './FrameExtractor';
 import { SpriteSandbox, type AnimationFrames } from './SpriteSandbox';
+import { GridSplitter, type GridFrame } from './GridSplitter';
+import { ParallaxBackgroundPanel } from './ParallaxBackgroundPanel';
 import {
   ANIMATION_TYPES,
   DIRECTIONS,
@@ -131,6 +133,8 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
   const [frameCount, setFrameCount] = useState(4);
   const [extractedFrames, setExtractedFrames] = useState<string[]>([]);
   const [showSandbox, setShowSandbox] = useState(false);
+  const [useGridSplitter, setUseGridSplitter] = useState(false);
+  const [showBackgroundGenerator, setShowBackgroundGenerator] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 获取当前风格预设
@@ -192,6 +196,8 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
     setCharacterDescription('');
     setExtractedFrames([]);
     setShowSandbox(false);
+    setUseGridSplitter(false);
+    setShowBackgroundGenerator(false);
   }, []);
 
   return (
@@ -529,15 +535,53 @@ export const SpriteGenerationPanel: React.FC<SpriteGenerationPanelProps> = ({
                   columns={4}
                 />
 
+                {/* 提取方式选择 */}
+                <div className="flex rounded-lg bg-gray-800 p-1">
+                  <button
+                    onClick={() => setUseGridSplitter(false)}
+                    className={cn(
+                      'flex-1 px-3 py-1.5 rounded text-xs transition-colors',
+                      !useGridSplitter
+                        ? 'bg-yellow-500 text-gray-900'
+                        : 'text-gray-400 hover:text-gray-300'
+                    )}
+                  >
+                    {t('sprite.extract.title', 'Auto Extract')}
+                  </button>
+                  <button
+                    onClick={() => setUseGridSplitter(true)}
+                    className={cn(
+                      'flex-1 px-3 py-1.5 rounded text-xs transition-colors',
+                      useGridSplitter
+                        ? 'bg-yellow-500 text-gray-900'
+                        : 'text-gray-400 hover:text-gray-300'
+                    )}
+                  >
+                    {t('sprite.splitter.title', 'Grid Splitter')}
+                  </button>
+                </div>
+
                 {/* 帧提取 */}
-                <FrameExtractor
-                  imageUrl={generatedImageUrl}
-                  frameWidth={frameWidth}
-                  frameHeight={frameHeight}
-                  frameCount={frameCount}
-                  columns={4}
-                  onFramesExtracted={handleFramesExtracted}
-                />
+                {!useGridSplitter ? (
+                  <FrameExtractor
+                    imageUrl={generatedImageUrl}
+                    frameWidth={frameWidth}
+                    frameHeight={frameHeight}
+                    frameCount={frameCount}
+                    columns={4}
+                    onFramesExtracted={handleFramesExtracted}
+                  />
+                ) : (
+                  <GridSplitter
+                    imageUrl={generatedImageUrl}
+                    initialCols={4}
+                    initialRows={Math.ceil(frameCount / 4)}
+                    onFramesExtracted={(frames: GridFrame[]) => {
+                      const frameDataUrls = frames.map((f) => f.dataUrl);
+                      handleFramesExtracted(frameDataUrls);
+                    }}
+                  />
+                )}
 
                 {/* 操作按钮 */}
                 <div className="flex space-x-2">
